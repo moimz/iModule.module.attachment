@@ -707,18 +707,15 @@ class ModuleAttachment {
 			if (is_file($filePath) == true) {
 				if ($isHit == true) $this->db()->update($this->table->attachment,array('download'=>$this->db()->inc()))->where('idx',$idx)->execute();
 				$file->name = str_replace(' ','_',$file->name);
-				if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Windows NT 6.1') !== false) {
-					$file->name = str_replace(' ','_',iconv('UTF-8','cp949//IGNORE',$file->name));
-				}
 	
-				header("Pragma: no-cache");
+				header("Pragma: public");
 				header("Expires: 0");
-				if ($file->mime == 'unknown') header("Content-Type: application/octet-stream");
-				else header("Content-Type: ".$file->mime);
-				header("Content-Disposition: attachment; filename=\"".$file->name."\"");
+				header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+				header("Cache-Control: private",false);
+				header('Content-Disposition: attachment; filename="'.$file->name.'"; filename*=UTF-8\'\''.rawurlencode($file->name));
 				header("Content-Transfer-Encoding: binary");
-				header("Content-Length: ".$file->size);
-				header("Connection: Keep-Alive");
+				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
+				header('Content-Length: '.$file->size);
 				
 				readfile($filePath);
 				exit;
@@ -730,20 +727,19 @@ class ModuleAttachment {
 		}
 	}
 	
-	function tempFileDownload($name,$is_delete=false) {
+	function tempFileDownload($name,$is_delete=false,$newname='') {
 		if (file_exists($this->getTempPath(true).'/'.$name) == true) {
 			$mime = $this->getFileMime($this->getTempPath(true).'/'.$name);
-			if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Windows NT 6.1') !== false) {
-				$file->name = iconv('UTF-8','cp949//IGNORE',$name);
-			}
-
-			header("Pragma: no-cache");
+			$filename = $newname ? $newname : $name;
+			
+			header("Pragma: public");
 			header("Expires: 0");
-			header("Content-Type: ".$mime);
-			header("Content-Disposition: attachment; filename=\"".$name."\"");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Cache-Control: private",false);
+			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.rawurlencode($filename));
 			header("Content-Transfer-Encoding: binary");
-			header("Content-Length: ".filesize($this->getTempPath(true).'/'.$name));
-			header("Connection:close");
+			header('Content-Type: '.$mime);
+			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
 
 			readfile($this->getTempPath(true).'/'.$name);
 			exit;
