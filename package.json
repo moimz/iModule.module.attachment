@@ -22,6 +22,25 @@
 	"context":false,
 	"global":false,
 	"article":false,
+	"configs":{
+		"templet":{
+			"type":"templet",
+			"module":"attachment",
+			"default":"default"
+		},
+		"file_limit":{
+			"type":"int",
+			"default":0
+		},
+		"total_limit":{
+			"type":"int",
+			"default":0
+		},
+		"allow_type":{
+			"type":"string",
+			"default":"*"
+		}
+	},
 	"databases":{
 		"attachment_table":{
 			"columns":{

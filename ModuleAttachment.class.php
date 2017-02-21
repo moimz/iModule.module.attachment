@@ -1,21 +1,44 @@
 <?php
 /**
- * This file is part of iModule - https://www.imodule.kr
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
  *
- * @file ModuleAttachment.class.php
- * @author Arzz
+ * 아이모듈 코어 및 모든 모듈에서 첨부파일과 관련된 모든 기능을 제어한다.
+ * 
+ * @file /modules/attachment/ModuleAttachment.class.php
+ * @author Arzz (arzz@arzz.com)
  * @license MIT License
+ * @version 3.0.0.161211
  */
 class ModuleAttachment {
-	private $IM; // Linked iModule core
-	private $Module; // Linked Module core
+	/**
+	 * iModule 및 Module 코어클래스
+	 */
+	private $IM;
+	private $Module;
 	
-	private $lang = null; // Store language strings
-	private $oLang = null; // Store original language(defined package.json) strings
-	private $table; // defined modules' database tables
+	/**
+	 * DB 관련 변수정의
+	 *
+	 * @private object $DB DB접속객체
+	 * @private string[] $table DB 테이블 별칭 및 원 테이블명을 정의하기 위한 변수
+	 */
+	private $DB;
+	private $table;
+	
+	/**
+	 * 언어셋을 정의한다.
+	 * 
+	 * @private object $lang 현재 사이트주소에서 설정된 언어셋
+	 * @private object $oLang package.json 에 의해 정의된 기본 언어셋
+	 */
+	private $lang = null;
+	private $oLang = null;
 	
 	private $_buffers = array();
 	
+	/**
+	 * 첨부파일 설정변수
+	 */
 	private $_id = null;
 	private $_name = null;
 	private $_templet = 'default';
@@ -25,83 +48,244 @@ class ModuleAttachment {
 	private $_wysiwygOnly = false;
 	private $_loadFile = array();
 	
+	/**
+	 * class 선언
+	 *
+	 * @param iModule $IM iModule 코어클래스
+	 * @param Module $Module Module 코어클래스
+	 * @see /classes/iModule.class.php
+	 * @see /classes/Module.class.php
+	 */
 	function __construct($IM,$Module) {
+		/**
+		 * iModule 및 Module 코어 선언
+		 */
 		$this->IM = $IM;
 		$this->Module = $Module;
 		
+		/**
+		 * 모듈에서 사용하는 DB 테이블 별칭 정의
+		 * @see 모듈폴더의 package.json 의 databases 참고
+		 */
 		$this->table = new stdClass();
 		$this->table->attachment = 'attachment_table';
 	}
 	
 	/**
-	 * Get database for this Module
+	 * 모듈 코어 클래스를 반환한다.
+	 * 현재 모듈의 각종 설정값이나 모듈의 package.json 설정값을 모듈 코어 클래스를 통해 확인할 수 있다.
 	 *
-	 * @return object DB.class
+	 * @return Module $Module
+	 */
+	function getModule() {
+		return $this->Module;
+	}
+	
+	/**
+	 * 모듈 설치시 정의된 DB코드를 사용하여 모듈에서 사용할 전용 DB클래스를 반환한다.
+	 *
+	 * @return DB $DB
 	 */
 	function db() {
-		return $this->IM->db('default');//$this->Module->getInstalled()->database);
+		if ($this->DB == null || $this->DB->ping() === false) $this->DB = $this->IM->db($this->getModule()->getInstalled()->database);
+		return $this->DB;
 	}
 	
 	/**
-	 * Get Database table from the others class (table is private value)
+	 * 모듈에서 사용중인 DB테이블 별칭을 이용하여 실제 DB테이블 명을 반환한다.
 	 *
-	 * @param string $table table code
-	 * @return string $tableName return real table name without prefix
+	 * @param string $table DB테이블 별칭
+	 * @return string $table 실제 DB테이블 명
 	 */
 	function getTable($table) {
-		return $this->table->$table;
+		return empty($this->table->$table) == true ? null : $this->table->$table;
 	}
 	
 	/**
-	 * Get API /$language/api/board/$api
+	 * [코어] 사이트 외부에서 현재 모듈의 API를 호출하였을 경우, API 요청을 처리하기 위한 함수로 API 실행결과를 반환한다.
+	 * 소스코드 관리를 편하게 하기 위해 각 요쳥별로 별도의 PHP 파일로 관리한다.
 	 *
-	 * @param string $api API code
-	 * @return object $data return data for API code
+	 * @param string $api API명
+	 * @return object $datas API처리후 반환 데이터 (해당 데이터는 /api/index.php 를 통해 API호출자에게 전달된다.)
+	 * @see /api/index.php
 	 */
 	function getApi($api) {
 		$data = new stdClass();
+		
+		/**
+		 * 이벤트를 호출한다.
+		 */
+		$this->IM->fireEvent('beforeGetApi','attachment',$api,$values,null);
+		
+		/**
+		 * 모듈의 api 폴더에 $api 에 해당하는 파일이 있을 경우 불러온다.
+		 */
+		if (is_file($this->getModule()->getPath().'/api/'.$api.'.php') == true) {
+			INCLUDE $this->getModule()->getPath().'/api/'.$api.'.php';
+		}
 		
 		return $data;
 	}
 	
 	/**
-	 * Get language string from language code
+	 * [사이트관리자] 모듈 설정패널을 구성한다.
 	 *
-	 * @param string $code language code (json key)
-	 * @return string language string
+	 * @return string $panel 설정패널 HTML
 	 */
-	function getLanguage($code) {
+	function getConfigPanel() {
+		/**
+		 * 설정패널 PHP에서 iModule 코어클래스와 모듈코어클래스에 접근하기 위한 변수 선언
+		 */
+		$IM = $this->IM;
+		$Module = $this->getModule();
+		
+		ob_start();
+		INCLUDE $this->getModule()->getPath().'/admin/configs.php';
+		$panel = ob_get_contents();
+		ob_end_clean();
+		
+		return $panel;
+	}
+	
+	/**
+	 * [사이트관리자] 모듈 관리자패널 구성한다.
+	 *
+	 * @return string $panel 관리자패널 HTML
+	 */
+	function getAdminPanel() {
+		/**
+		 * 설정패널 PHP에서 iModule 코어클래스와 모듈코어클래스에 접근하기 위한 변수 선언
+		 */
+		$IM = $this->IM;
+		$Module = $this;
+		
+		ob_start();
+		INCLUDE $this->getModule()->getPath().'/admin/index.php';
+		$panel = ob_get_contents();
+		ob_end_clean();
+		
+		return $panel;
+	}
+	
+	/**
+	 * 언어셋파일에 정의된 코드를 이용하여 사이트에 설정된 언어별로 텍스트를 반환한다.
+	 * 코드에 해당하는 문자열이 없을 경우 1차적으로 package.json 에 정의된 기본언어셋의 텍스트를 반환하고, 기본언어셋 텍스트도 없을 경우에는 코드를 그대로 반환한다.
+	 *
+	 * @param string $code 언어코드
+	 * @param string $replacement 일치하는 언어코드가 없을 경우 반환될 메세지 (기본값 : null, $code 반환)
+	 * @return string $language 실제 언어셋 텍스트
+	 */
+	function getText($code,$replacement=null) {
 		if ($this->lang == null) {
-			if (file_exists($this->Module->getPath().'/languages/'.$this->IM->language.'.json') == true) {
-				$this->lang = json_decode(file_get_contents($this->Module->getPath().'/languages/'.$this->IM->language.'.json'));
-				if ($this->IM->language != $this->Module->getPackage()->language) {
-					$this->oLang = json_decode(file_get_contents($this->Module->getPath().'/languages/'.$this->Module->getPackage()->language.'.json'));
+			if (is_file($this->getModule()->getPath().'/languages/'.$this->IM->language.'.json') == true) {
+				$this->lang = json_decode(file_get_contents($this->getModule()->getPath().'/languages/'.$this->IM->language.'.json'));
+				if ($this->IM->language != $this->getModule()->getPackage()->language && is_file($this->getModule()->getPath().'/languages/'.$this->getModule()->getPackage()->language.'.json') == true) {
+					$this->oLang = json_decode(file_get_contents($this->getModule()->getPath().'/languages/'.$this->getModule()->getPackage()->language.'.json'));
 				}
-			} else {
-				$this->lang = json_decode(file_get_contents($this->Module->getPath().'/languages/'.$this->Module->getPackage()->language.'.json'));
+			} elseif (is_file($this->getModule()->getPath().'/languages/'.$this->getModule()->getPackage()->language.'.json') == true) {
+				$this->lang = json_decode(file_get_contents($this->getModule()->getPath().'/languages/'.$this->getModule()->getPackage()->language.'.json'));
 				$this->oLang = null;
 			}
 		}
 		
+		$returnString = null;
 		$temp = explode('/',$code);
-		if (count($temp) == 1) {
-			return isset($this->lang->$code) == true ? $this->lang->$code : ($this->oLang != null && isset($this->oLang->$code) == true ? $this->oLang->$code : '');
-		} else {
-			$string = $this->lang;
-			for ($i=0, $loop=count($temp);$i<$loop;$i++) {
-				if (isset($string->{$temp[$i]}) == true) $string = $string->{$temp[$i]};
-				else $string = null;
+		
+		$string = $this->lang;
+		for ($i=0, $loop=count($temp);$i<$loop;$i++) {
+			if (isset($string->{$temp[$i]}) == true) {
+				$string = $string->{$temp[$i]};
+			} else {
+				$string = null;
+				break;
 			}
-			
+		}
+		
+		if ($string != null) {
+			$returnString = $string;
+		} elseif ($this->oLang != null) {
 			if ($string == null && $this->oLang != null) {
 				$string = $this->oLang;
 				for ($i=0, $loop=count($temp);$i<$loop;$i++) {
-					if (isset($string->{$temp[$i]}) == true) $string = $string->{$temp[$i]};
-					else $string = null;
+					if (isset($string->{$temp[$i]}) == true) {
+						$string = $string->{$temp[$i]};
+					} else {
+						$string = null;
+						break;
+					}
 				}
 			}
-			return $string == null ? '' : $string;
+			
+			if ($string != null) $returnString = $string;
 		}
+		
+		/**
+		 * 언어셋 텍스트가 없는경우 iModule 코어에서 불러온다.
+		 */
+		if ($returnString != null) return $returnString;
+		elseif (in_array(reset($temp),array('text','button','action')) == true) return $this->IM->getText($code,$replacement);
+		else return $replacement == null ? $code : $replacement;
+	}
+	
+	/**
+	 * 상황에 맞게 에러코드를 반환한다.
+	 *
+	 * @param string $code 에러코드
+	 * @param object $value(옵션) 에러와 관련된 데이터
+	 * @param boolean $isRawData(옵션) RAW 데이터 반환여부
+	 * @return string $message 에러 메세지
+	 */
+	function getErrorText($code,$value=null,$isRawData=false) {
+		$message = $this->getText('error/'.$code,$code);
+		if ($message == $code) return $this->IM->getErrorText($code,$value,null,$isRawData);
+		
+		$description = null;
+		switch ($code) {
+			case 'NOT_ALLOWED_SIGNUP' :
+				if ($value != null && is_object($value) == true) {
+					$description = $value->title;
+				}
+				break;
+				
+			case 'DISABLED_LOGIN' :
+				if ($value != null && is_numeric($value) == true) {
+					$description = str_replace('{SECOND}',$value,$this->getText('text/remain_time_second'));
+				}
+				break;
+			
+			default :
+				if (is_object($value) == false && $value) $description = $value;
+		}
+		
+		$error = new stdClass();
+		$error->message = $message;
+		$error->description = $description;
+		
+		if ($isRawData === true) return $error;
+		else return $this->IM->getErrorText($error);
+	}
+	
+	/**
+	 * 템플릿 정보를 가져온다.
+	 *
+	 * @param string $this->getTemplet($configs) 템플릿명
+	 * @return string $package 템플릿 정보
+	 */
+	function getTemplet($templet=null) {
+		$templet = $templet == null ? '#' : $templet;
+		
+		/**
+		 * 사이트맵 관리를 통해 설정된 페이지 컨텍스트 설정일 경우
+		 */
+		if (is_object($templet) == true) {
+			$templet = $templet !== null && isset($templet->templet) == true ? $templet->templet : '#';
+		}
+		
+		/**
+		 * 템플릿명이 # 이면 모듈 기본설정에 설정된 템플릿을 사용한다.
+		 */
+		$templet = $templet == '#' ? $this->getModule()->getConfig('templet') : $templet;
+		return $this->getModule()->getTemplet($templet);
 	}
 	
 	function reset() {
@@ -742,6 +926,8 @@ class ModuleAttachment {
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
 
 			readfile($this->getTempPath(true).'/'.$name);
+			
+			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
 			exit;
 		}
 	}

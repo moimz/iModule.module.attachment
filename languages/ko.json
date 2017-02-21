@@ -8,5 +8,20 @@
 	"help":{
 		"default":"파일첨부버튼을 클릭하여 업로드할 파일을 선택(다중선택가능)하면 파일이 업로드됩니다",
 		"wysiwyg":"업로드된 파일목록에서 본문에 삽입할 파일을 클릭하면 본문에 삽입할 수 있습니다"
+	},
+	"admin":{
+		"configs":{
+			"form":{
+				"default_setting":"모듈기본설정",
+				"templet":"템플릿",
+				"upload_setting":"업로드설정",
+				"file_limit":"최대파일크기",
+				"file_limit_help":"파일 1개당 업로드제한용량을 MB로 설정합니다. (0 입력시 무제한)",
+				"total_limit":"총 업로드크기",
+				"total_limit_help":"업로더별 총 업로드제한용량을 MB로 설정합니다. (0 입력시 무제한)",
+				"allow_type":"업로드허용파일",
+				"allow_type_help":"업로드를 허용할 파일 MIME을 콤마(,)로 구분하여 입력하세요. (* 입력시 모든파일 허용)"
+			}
+		}
 	}
 }

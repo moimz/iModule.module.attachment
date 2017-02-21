@@ -1,0 +1,15 @@
+{
+	"title":{
+		"ko":"첨부파일 Drag&Drop 템플릿"
+	},
+	"version":"1.0.0",
+	"author":{
+		"name":"Arzz",
+		"email":"arzz@arzz.com"
+	},
+	"homepage":"https://www.imodule.kr",
+	"language":"ko",
+	"styles":[
+		"/styles/style.css"
+	]
+}
