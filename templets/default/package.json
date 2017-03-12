@@ -11,5 +11,17 @@
 	"language":"ko",
 	"styles":[
 		"/styles/style.css"
-	]
+	],
+	"scripts":[
+		"/scripts/script.js"
+	],
+	"configs":{
+		"width":{
+			"title":{
+				"ko":"가로크기"
+			},
+			"type":"int",
+			"default":100
+		}
+	}
 }

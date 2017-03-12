@@ -41,12 +41,14 @@ class ModuleAttachment {
 	 */
 	private $_id = null;
 	private $_name = null;
-	private $_templet = 'default';
+	private $_templet = '#';
+	private $_templet_file = null;
 	private $_module = null;
 	private $_target = null;
 	private $_wysiwyg = false;
 	private $_wysiwygOnly = false;
-	private $_loadFile = array();
+	private $_buttonText = null;
+	private $_loader = null;
 	
 	/**
 	 * class 선언
@@ -273,56 +275,140 @@ class ModuleAttachment {
 	 */
 	function getTemplet($templet=null) {
 		$templet = $templet == null ? '#' : $templet;
+		$templet_configs = null;
 		
 		/**
 		 * 사이트맵 관리를 통해 설정된 페이지 컨텍스트 설정일 경우
 		 */
 		if (is_object($templet) == true) {
 			$templet = $templet !== null && isset($templet->templet) == true ? $templet->templet : '#';
+			$templet_configs = $templet !== null && isset($templet->templet_configs) == true ? $templet->templet_configs : null;
 		}
 		
 		/**
 		 * 템플릿명이 # 이면 모듈 기본설정에 설정된 템플릿을 사용한다.
 		 */
-		$templet = $templet == '#' ? $this->getModule()->getConfig('templet') : $templet;
-		return $this->getModule()->getTemplet($templet);
+		if ($templet == '#') {
+			$templet = $this->getModule()->getConfig('templet');
+			$templet_configs = $this->getModule()->getConfig('templet_configs');
+		}
+		
+		return $this->getModule()->getTemplet($templet,$templet_configs);
 	}
 	
+	/**
+	 * 파일 삭제 모달을 가져온다.
+	 *
+	 * @param int $idx 파일고유번호
+	 * @return string $html 모달 HTML
+	 */
+	function getDeleteModal($idx) {
+		$title = '파일삭제 확인';
+		
+		$file = $this->getFileInfo($idx);
+		
+		$content = '<input type="hidden" name="code" value="'.Encoder($idx).'">'.PHP_EOL;
+		$content.= '<div data-role="message">'.$file->name.' 파일을 삭제하시겠습니까?</div>';
+		
+		
+		$buttons = array();
+		
+		$button = new stdClass();
+		$button->type = 'submit';
+		$button->text = '삭제';
+		$button->class = 'danger';
+		$buttons[] = $button;
+		
+		$button = new stdClass();
+		$button->type = 'close';
+		$button->text = '취소';
+		$buttons[] = $button;
+		
+		return $this->getTemplet()->getModal($title,$content,true,array(),$buttons);
+	}
+	
+	/**
+	 * 업로더를 호출한 뒤 업로더관련 변수를 초기화한다.
+	 */
 	function reset() {
 		$this->id = null;
 		$this->_name = null;
-		$this->_templet = 'default';
+		$this->_templet = '#';
+		$this->_templet_file = null;
 		$this->_module = null;
 		$this->_target = null;
 		$this->_wysiwyg = false;
-		$this->_wysiwygOnly = false;
-		$this->_loadFile = array();
+		$this->_buttonText = null;
+		$this->_loader = null;
 	}
 	
+	/**
+	 * 업로더 고유값을 설정한다.
+	 *
+	 * @param string $id
+	 * @return Attachment $this
+	 */
 	function setId($id) {
 		$this->_id = $id;
 		
 		return $this;
 	}
 	
+	/**
+	 * 업로더 템플릿을 설정한다.
+	 *
+	 * @param string $templet
+	 * @return Attachment $this
+	 */
 	function setTemplet($templet) {
 		$this->_templet = $templet;
 		
 		return $this;
 	}
 	
+	/**
+	 * 업로더 템플릿파일을 설정한다.
+	 *
+	 * @param string $path
+	 * @return Attachment $this
+	 */
+	function setTempletFile($path) {
+		$this->_templet_file = $path;
+		
+		return $this;
+	}
+	
+	/**
+	 * 업로더를 사용하는 모듈을 설정한다.
+	 *
+	 * @param string $module
+	 * @return Attachment $this
+	 */
 	function setModule($module) {
 		$this->_module = $module;
 		
 		return $this;
 	}
 	
+	/**
+	 * 업로더를 사용하는 대상을 설정한다.
+	 *
+	 * @param string $target
+	 * @return Attachment $this
+	 */
 	function setTarget($target) {
 		$this->_target = $target;
 		
 		return $this;
 	}
 	
+	/**
+	 * 업로더가 위지윅에디터와 연동되는지 설정한다.
+	 * 위지윅에디터가 설정되면 $target 값이 $wysiwyg 으로 대체된다.
+	 *
+	 * @param string $wysiwyg 위지윅에디터의 textarea 이름
+	 * @return Attachment $this
+	 */
 	function setWysiwyg($wysiwyg) {
 		$this->_target = $wysiwyg;
 		$this->_wysiwyg = true;
@@ -330,96 +416,91 @@ class ModuleAttachment {
 		return $this;
 	}
 	
-	function setWysiwygOnly($wysiwyg) {
-		$this->_wysiwygOnly = true;
+	/**
+	 * 파일을 불러올 주소를 지정한다.
+	 *
+	 * @param string $url
+	 */
+	function setLoader($url) {
+		$this->_loader = $url;
 		
 		return $this;
 	}
 	
-	function isWysiwyg() {
-		return $this->_wysiwyg;
-	}
-	
-	function isWysiwygOnly() {
-		return $this->_wysiwygOnly;
-	}
-	
-	function loadFile($fileIDX=array()) {
-		$this->_loadFile = $fileIDX;
+	/**
+	 * 파일추가 버튼 텍스트를 설정한다.
+	 *
+	 * @param string $text
+	 * @return Attachment $this
+	 */
+	function setButtonText($text) {
+		$this->_buttonText = $text;
 		
 		return $this;
 	}
 	
-	function preload($includeTemplet=true) {
-		$this->IM->addSiteHeader('script',$this->Module->getDir().'/scripts/attachment.js');
+	/**
+	 * 설정된 버튼 텍스트를 반환한다.
+	 *
+	 * @return string $text
+	 */
+	function getButtonText() {
+		return $this->_buttonText == null ? '파일추가' : $this->_buttonText;
+	}
+	
+	/**
+	 * 업로더를 사용하기 위한 필수요소를 미리 불러온다.
+	 */
+	function preload() {
+		$this->IM->addHeadResource('script',$this->getModule()->getDir().'/scripts/script.js');
+		$this->IM->addHeadResource('style',$this->getModule()->getDir().'/styles/style.css');
 		
-		if ($includeTemplet === true) {
-			$templetPath = $this->Module->getPath().'/templets/'.$this->_templet;
-			$templetDir = $this->Module->getDir().'/templets/'.$this->_templet;
-			
-			if (file_exists($templetPath.'/scripts/script.js') == true) {
-				$this->IM->addSiteHeader('script',$templetDir.'/scripts/script.js');
+		if ($this->_templet_file == null) {
+			$Templet = $this->getTemplet($this->_templet);
+			$package = $Templet->getPackage();
+			if (isset($package->scripts) == true) {
+				foreach ($package->scripts as $script) {
+					$this->IM->addHeadResource('script',$Templet->getDir().$script);
+				}
 			}
-			
-			if (file_exists($templetPath.'/styles/style.css') == true) {
-				$this->IM->addSiteHeader('style',$templetDir.'/styles/style.css');
+			if (isset($package->styles) == true) {
+				foreach ($package->styles as $style) {
+					$this->IM->addHeadResource('style',$Templet->getDir().$style);
+				}
 			}
 		}
 	}
 	
-	function doLayout() {
-		$this->IM->addSiteHeader('script',$this->Module->getDir().'/scripts/attachment.js');
-		
-		ob_start();
+	/**
+	 * 업로더를 가져온다.
+	 */
+	function get() {
+		$this->preload();
 		
 		$this->_id = $this->_id == null ? uniqid('UPLOADER_') : $this->_id;
 		
-		if (preg_match('/\.php$/',$this->_templet) == true) {
-			$temp = explode('/',$this->_templet);
-			$templetFile = array_pop($temp);
-			$this->_templet = end($temp);
-			$templetPath = implode('/',$temp);
-			$templetDir = str_replace(__IM_PATH__,__IM_DIR__,$templetPath);
-		} elseif (preg_match('/^@/',$this->_templet) == true) {
-			$templetFile = 'templet.php';
-			$templetPath = __IM_PATH__.'/templets/'.$this->IM->getSite()->templet.'/modules/attachment/templets/'.preg_replace('/^@/','',$this->_templet);
-			$templetDir = __IM_DIR__.'/templets/'.$this->IM->getSite()->templet.'/modules/attachment/templets/'.preg_replace('/^@/','',$this->_templet);
+		$header = PHP_EOL.'<!-- ATTACHMENT MODULE -->'.PHP_EOL;
+		$header.= '<div id="'.$this->_id.'" data-role="module" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE"';
+		if ($this->_module != null) $header.= ' data-uploader-module="'.$this->_module.'"';
+		if ($this->_target != null) $header.= ' data-uploader-target="'.$this->_target.'"';
+		if ($this->_loader != null) $header.= ' data-uploader-loader="'.$this->_loader.'"';
+		$header.= ' data-uploader-wysiwyg="'.($this->_wysiwyg == true ? 'TRUE' : 'FALSE').'"';
+		$header.= '>'.PHP_EOL;
+		$header.= '<div style="display:none;"><input type="file" multiple></div>'.PHP_EOL;
+		$footer = PHP_EOL.'</div>'.PHP_EOL.'<script>$(document).ready(function() { Attachment.init("'.$this->_id.'"); });</script>'.PHP_EOL;
+		$footer.= '<!--// ATTACHMENT MODULE -->'.PHP_EOL;
+		
+		/**
+		 * 템플릿파일을 호출한다.
+		 */
+		if ($this->_templet_file == null) {
+			$html = $this->getTemplet($this->_templet)->getContext('index',get_defined_vars(),$header,$footer);
 		} else {
-			$templetFile = 'templet.php';
-			$templetPath = $this->Module->getPath().'/templets/'.$this->_templet;
-			$templetDir = $this->Module->getDir().'/templets/'.$this->_templet;
+			$html = $this->getTemplet($this->_templet)->getExternal($this->_templet_file,get_defined_vars(),$header,$footer);
 		}
-		
-		$inputForm = '<div style="display:none;"><input type="file" name="attachment_file" data-attachment-input-file="true" multiple><input type="file" name="attachment_image" data-attachment-input-file="true" multiple><input type="file" name="wysiwyg_image" accept="image/*" data-attachment-input-file="true" multiple><input type="file" name="wysiwyg_file" data-attachment-input-file="true" multiple></div>';
-		
-		$html = '<div id="'.$this->_id.'" data-templet="'.$this->_templet.'">'.PHP_EOL;
-		
-		$IM = $this->IM;
-		$Module = $this;
-		$id = $this->_id;
-		
-		if (file_exists($templetPath.'/scripts/script.js') == true) {
-			$this->IM->addSiteHeader('script',$templetDir.'/scripts/script.js');
-		}
-		
-		if (file_exists($templetPath.'/styles/style.css') == true) {
-			$this->IM->addSiteHeader('style',$templetDir.'/styles/style.css');
-		}
-		
-		if (file_exists($templetPath.'/'.$templetFile) == true) {
-			INCLUDE $templetPath.'/'.$templetFile;
-		}
-		
-		$html.= ob_get_contents();
-		ob_end_clean();
-		
-		$html.= $this->_buildScript();
-		$html.= '</div>'.PHP_EOL;
-		
-		$this->IM->fireEvent('afterDoLayout','attachment','doLayout',null,null,$html);
 		
 		$this->reset();
-		echo $html;
+		return $html;
 	}
 	
 	private function _buildScript() {
@@ -755,13 +836,21 @@ class ModuleAttachment {
 		$fileInfo->download = $this->getAttachmentUrl($idx,'download');
 		$fileInfo->reg_date = $file->reg_date;
 		$fileInfo->code = Encoder($fileInfo->idx);
+		$fileInfo->module = $file->module;
+		$fileInfo->target = $file->target;
 		
 		return $fileInfo;
 	}
 	
+	/**
+	 * 파일을 삭제한다.
+	 *
+	 * @param int $idx 파일고유번호
+	 * @return boolean $success
+	 */
 	function fileDelete($idx) {
 		$idx = is_array($idx) == false ? array($idx) : $idx;
-		if (empty($idx) == true) return;
+		if (empty($idx) == true) return false;
 		
 		$files = $this->db()->select($this->table->attachment)->where('idx',$idx,'IN')->get();
 		for ($i=0, $loop=count($files);$i<$loop;$i++) {
@@ -769,9 +858,18 @@ class ModuleAttachment {
 			@unlink($this->IM->getAttachmentPath().'/'.$files[$i]->path.'.view');
 			@unlink($this->IM->getAttachmentPath().'/'.$files[$i]->path.'.thumb');
 			
-			if ($files[$i]->module != '' && $files[$i]->module != 'site') $this->IM->getModule($files[$i]->module)->deleteAttachment($files[$i]->idx);
+			if ($files[$i]->module != '' && $files[$i]->module != 'site') {
+				$mModule = $this->IM->getModule($files[$i]->module);
+				
+				if (method_exists($mModule,'syncAttachment') == true) {
+					$mModule->syncAttachment('delete',$files[$i]->idx);
+				}
+			}
+			
 			$this->db()->delete($this->table->attachment)->where('idx',$files[$i]->idx)->execute();
 		}
+		
+		return true;
 	}
 	
 	function fileUpload($idx) {
@@ -936,63 +1034,30 @@ class ModuleAttachment {
 		$this->db()->update($this->table->attachment,array('status'=>'PUBLISHED'))->where('idx',$idx)->execute();
 	}
 	
+	/**
+	 * 현재 모듈에서 처리해야하는 요청이 들어왔을 경우 처리하여 결과를 반환한다.
+	 * 소스코드 관리를 편하게 하기 위해 각 요쳥별로 별도의 PHP 파일로 관리한다.
+	 * 작업코드가 '@' 로 시작할 경우 사이트관리자를 위한 작업으로 최고관리자 권한이 필요하다.
+	 *
+	 * @param string $action 작업코드
+	 * @return object $results 수행결과
+	 * @see /process/index.php
+	 */
 	function doProcess($action) {
 		$results = new stdClass();
 		$values = new stdClass();
 		
-		if ($action == 'view') {
-			$idx = Request('idx');
-			$name = Request('name');
-			
-			$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-			if ($file == null) {
-				header("HTTP/1.1 404 Not Found");
-				exit;
-			} else {
-				if (in_array($file->type,array('image','video')) == true && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-					header('Content-Type: '.$file->mime);
-					
-					if ($file->width > 1000) {
-						if (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.view') == true) {
-							if ($file->type == 'image') header('Content-Type: '.$file->mime);
-							else header('Content-Type: image/jpeg');
-							header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.view'));
-							readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
-							exit;
-						} elseif ($file->type == 'image' && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-							if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.view',1000,0,false) == false) {
-								header("HTTP/1.1 404 Not Found");
-								exit;
-							}
-							header('Content-Type: '.$file->mime);
-							header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.view'));
-							readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
-							exit;
-						} else {
-							header("HTTP/1.1 404 Not Found");
-							exit;
-						}
-					} else {
-						header('Content-Type: '.$file->size);
-						readfile($this->IM->getAttachmentPath().'/'.$file->path);
-					}
-					exit;
-				} elseif (in_array($file->type,array('icon','svg')) == true) {
-					if (file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-						header('Content-Type: '.$file->mime);
-						header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path));
-						readfile($this->IM->getAttachmentPath().'/'.$file->path);
-						exit;
-					} else {
-						header("HTTP/1.1 404 Not Found");
-						exit;
-					}
-				} else {
-					header("HTTP/1.1 404 Not Found");
-					exit;
-				}
-			}
+		$this->IM->fireEvent('beforeDoProcess','attachment',$action,$values,$results);
+		
+		/**
+		 * 모듈의 process 폴더에 $action 에 해당하는 파일이 있을 경우 불러온다.
+		 */
+		if (is_file($this->getModule()->getPath().'/process/'.$action.'.php') == true) {
+			INCLUDE $this->getModule()->getPath().'/process/'.$action.'.php';
 		}
+		
+		$values = (object)get_defined_vars();
+		$this->IM->fireEvent('afterDoProcess','attachment',$action,$values,$results);
 		
 		if ($action == 'thumbnail') {
 			$idx = Request('idx');
@@ -1026,13 +1091,6 @@ class ModuleAttachment {
 			}
 		}
 		
-		if ($action == 'download') {
-			$idx = Request('idx');
-			$name = Request('name');
-			
-			$this->fileDownload($idx);
-		}
-		
 		if ($action == 'load') {
 			$idx = Decoder(Request('key')) != false ? json_decode(Decoder(Request('key'))) : array();
 			$values->files = array();
@@ -1042,78 +1100,6 @@ class ModuleAttachment {
 			}
 			$results->success = true;
 			$results->files = $values->files;
-		}
-		
-		if ($action == 'upload') {
-			$idx = Request('idx');
-			if ($idx == null) {
-				$values->status = 'METADATA';
-				$meta = json_decode(Request('meta'));
-				
-				if ($meta != null) {
-					$mNormalizer = new UnicodeNormalizer();
-					$meta->name = $mNormalizer->normalize($meta->name);
-					$path = $this->getTempPath().'/'.md5(Request('meta')).'.'.base_convert(microtime(true)*10000,10,32).'.temp';
-					$idx = $this->db()->insert($this->table->attachment,array('module'=>$meta->module,'target'=>$meta->target,'path'=>$path,'name'=>$meta->name,'type'=>$this->getFileType($meta->type),'mime'=>$meta->type,'size'=>$meta->size,'wysiwyg'=>$meta->wysiwyg == true ? 'TRUE' : 'FALSE','reg_date'=>time()))->execute();
-					
-					$values->fileInfo = $this->getFileInfo($idx);
-					$results->success = true;
-					$results->idx = $idx;
-					$results->code = Encoder($idx);
-				} else {
-					$results->success = false;
-					$results->message = 'METADATA ERROR';
-				}
-			} else {
-				$idx = Decoder(Request('idx'));
-				if ($idx) {
-					$fileInfo = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-					if ($fileInfo != null) {
-						if (isset($_SERVER['HTTP_CONTENT_RANGE']) == true && preg_match('/bytes ([0-9]+)\-([0-9]+)\/([0-9]+)/',$_SERVER['HTTP_CONTENT_RANGE'],$fileRange) == true) {
-							$values->chunkBytes = file_get_contents("php://input");
-							$values->chunkRangeStart = intval($fileRange[1]);
-							$values->chunkRangeEnd = intval($fileRange[2]);
-							$values->chunkTotalLength = intval($fileRange[3]);
-							
-							if ($values->chunkRangeStart === 0) {
-								$fp = fopen($this->IM->getAttachmentPath().'/'.$fileInfo->path,'w');
-							} else {
-								$fp = fopen($this->IM->getAttachmentPath().'/'.$fileInfo->path,'a');
-							}
-							fseek($fp,$values->chunkRangeStart);
-							fwrite($fp,$values->chunkBytes);
-							fclose($fp);
-							
-							if ($values->chunkRangeEnd + 1 === $values->chunkTotalLength) {
-								if (intval($fileInfo->size) != filesize($this->IM->getAttachmentPath().'/'.$fileInfo->path)) {
-									unlink($this->IM->getAttachmentPath().'/'.$fileInfo->path);
-									$this->db()->delete($this->table->attachment)->where('idx',$fileInfo->idx)->execute();
-									$results->success = false;
-									$results->message = 'SIZE NOT MATCHED ('.strlen($values->chunkBytes).'/'.$fileInfo->size.'/'.filesize($this->IM->getAttachmentPath().'/'.$fileInfo->path).')';
-								} else {
-									$values->status = 'COMPLETE';
-									$values->fileInfo = $this->fileUpload($fileInfo->idx);
-									$results->success = true;
-									$results->file = $values->fileInfo;
-								}
-							} else {
-								$values->status = 'UPLOADING';
-								$values->fileInfo = $fileInfo;
-								$results->success = true;
-							}
-						} else {
-							$results->success = false;
-							$results->message = 'HEADER ERROR';
-						}
-					} else {
-						$results->success = false;
-						$results->message = 'UNREGISTED FILE';
-					}
-				} else {
-					$results->success = false;
-					$results->message = 'NOT FOUND IDX';
-				}
-			}
 		}
 		
 		if ($action == 'wysiwyg_upload') {

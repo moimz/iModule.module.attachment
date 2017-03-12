@@ -1,0 +1,23 @@
+/**
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
+ *
+ * 첨부파일 업로더의 기본 스타일을 지정한다.
+ * 
+ * @file /modules/attachment/styles/style.css
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @version 3.0.0.161211
+ */
+div[data-module=attachment] i.icon {display:inline-block; background-repeat:no-repeat; background-position:50% 50%; background-image:url(../images/icon_large_etc.png);}
+div[data-module=attachment] i.icon[data-type=folder] {background-image:url(../images/icon_large_folder.png);}
+div[data-module=attachment] i.icon[data-type=document] {background-image:url(../images/icon_large_document.png);}
+div[data-module=attachment] i.icon[data-type=image] {background-image:url(../images/icon_large_image.png);}
+div[data-module=attachment] i.icon[data-type=video] {background-image:url(../images/icon_large_video.png);}
+div[data-module=attachment] i.icon[data-type=audio] {background-image:url(../images/icon_large_audio.png);}
+div[data-module=attachment] i.icon[data-type=archive] {background-image:url(../images/icon_large_archive.png);}
+
+div[data-module=attachment] i.icon[data-extension^=ppt] {background-image:url(../images/icon_large_ppt.png);}
+div[data-module=attachment] i.icon[data-extension^=doc] {background-image:url(../images/icon_large_doc.png);}
+div[data-module=attachment] i.icon[data-extension^=xls] {background-image:url(../images/icon_large_xls.png);}
+div[data-module=attachment] i.icon[data-extension^=hwp] {background-image:url(../images/icon_large_hwp.png);}
+div[data-module=attachment] i.icon[data-extension^=pdf] {background-image:url(../images/icon_large_pdf.png);}
