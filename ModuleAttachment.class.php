@@ -1102,37 +1102,6 @@ class ModuleAttachment {
 			$results->files = $values->files;
 		}
 		
-		if ($action == 'wysiwyg_upload') {
-			if (isset($_FILES['file']['name']) == true && $_FILES['file']['name']) {
-				$_module = Request('_module');
-				$_target = Request('_target');
-				
-				$name = $_FILES['file']['name'];
-				$mime = $this->getFileMime($_FILES['file']['tmp_name']);
-				$type = $this->getFileType($mime);
-				if ($type == 'image') {
-					if ($name == 'blob') {
-						$extension = explode('/',$mime);
-						$name = 'clipboard.'.end($extension);
-					}
-					$check = getimagesize($_FILES['file']['tmp_name']);
-					$width = $check[0];
-					$height = $check[1];
-				} else {
-					$width = $height = 0;
-				}
-				$size = filesize($_FILES['file']['tmp_name']);
-				$path = $this->getCurrentPath().'/'.md5_file($_FILES['file']['tmp_name']).'.'.base_convert(microtime(true)*10000,10,32).'.'.$this->getFileExtension($name,$_FILES['file']['tmp_name']);
-				move_uploaded_file($_FILES['file']['tmp_name'],$this->IM->getAttachmentPath().'/'.$path);
-				
-				$idx = $this->db()->insert($this->table->attachment,array('module'=>$_module,'target'=>$_target,'path'=>$path,'name'=>$name,'type'=>$type,'mime'=>$mime,'size'=>$size,'width'=>$width,'height'=>$height,'wysiwyg'=>'TRUE','reg_date'=>time()))->execute();
-				
-				$results->success = true;
-				$results->fileInfo = $this->getFileInfo($idx);
-				$results->link = $results->fileInfo->path;
-			}
-		}
-		
 		if ($action == '@updateFileType') {
 			$attachments = $this->db()->select($this->table->attachment)->get();
 			for ($i=0, $loop=count($attachments);$i<$loop;$i++) {

@@ -331,7 +331,7 @@ var Attachment = {
 		if (file.type == "image") {
 			$wysiwyg.froalaEditor("image.insert",file.path,false,{"idx":file.idx});
 		} else {
-			$wysiwyg.froalaEditor("file.insert",file.download,file.name,{success:true,file:{idx:file.idx,size:file.size,name:file.name}});
+			$wysiwyg.froalaEditor("file.insert",file.download,file.name,{idx:file.idx});
 		}
 	},
 	/**
