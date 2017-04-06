@@ -1,6 +1,6 @@
-div[data-module=attachment][data-templet=default] div.button {padding-top:10px;}
-div[data-module=attachment][data-templet=default] div.button > button {width:auto; background:#b5b7c0; border:0px; color:#fff; font-size:13px; line-height:40px; font-size:0; font-size:13px; cursor:pointer; padding:0px;}
-div[data-module=attachment][data-templet=default] div.button > button > i {display:inline-block; width:40px; height:40px; line-height:38px; vertical-align:top; text-align:center; font-size:16px; margin-top:0px;}
+div[data-module=attachment][data-templet=default] div.button {}
+div[data-module=attachment][data-templet=default] div.button > button {width:auto; background:#b5b7c0; border:0px; color:#fff; font-size:13px; line-height:40px; font-size:0; font-size:13px; cursor:pointer; padding:0px; text-align:left;}
+div[data-module=attachment][data-templet=default] div.button > button > i {display:inline-block; width:40px; height:40px; line-height:40px; vertical-align:top; text-align:center; font-size:16px; margin-top:0px;}
 div[data-module=attachment][data-templet=default] div.button > button > span {display:inline-block; padding-right:15px; height:38px; line-height:38px;}
 div[data-module=attachment][data-templet=default] div.button > button[data-loading=TRUE] {background:#b5b7c0 !important; cursor:not-allowed;}
 div[data-module=attachment][data-templet=default] div.button > button:hover {background:#828595; color:#fff;}
@@ -38,3 +38,8 @@ div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-
 
 div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div > button[data-action=delete] {display:block;}
 div[data-module=attachment][data-templet=default][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div:hover > button[data-action=insert] {display:block;}
+
+@media (max-width:767px) {
+	div[data-module=attachment][data-templet=default] div.button > span {display:none;}
+	div[data-module=attachment][data-templet=default] div.button > button {width:100%;}
+}

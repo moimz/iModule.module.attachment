@@ -21,3 +21,5 @@ div[data-module=attachment] i.icon[data-extension^=doc] {background-image:url(..
 div[data-module=attachment] i.icon[data-extension^=xls] {background-image:url(../images/icon_large_xls.png);}
 div[data-module=attachment] i.icon[data-extension^=hwp] {background-image:url(../images/icon_large_hwp.png);}
 div[data-module=attachment] i.icon[data-extension^=pdf] {background-image:url(../images/icon_large_pdf.png);}
+
+div[data-module=wysiwyg] + div[data-module=attachment] {padding-top:10px;}
