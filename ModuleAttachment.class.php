@@ -331,7 +331,7 @@ class ModuleAttachment {
 	 * 업로더를 호출한 뒤 업로더관련 변수를 초기화한다.
 	 */
 	function reset() {
-		$this->id = null;
+		$this->_id = null;
 		$this->_name = null;
 		$this->_templet = '#';
 		$this->_templet_file = null;
@@ -487,7 +487,8 @@ class ModuleAttachment {
 		$header.= ' data-uploader-wysiwyg="'.($this->_wysiwyg == true ? 'TRUE' : 'FALSE').'"';
 		$header.= '>'.PHP_EOL;
 		$header.= '<div style="display:none;"><input type="file" multiple></div>'.PHP_EOL;
-		$footer = PHP_EOL.'</div>'.PHP_EOL.'<script>$(document).ready(function() { Attachment.init("'.$this->_id.'"); });</script>'.PHP_EOL;
+		$footer = PHP_EOL.'<script>$(document).ready(function() { Attachment.init("'.$this->_id.'"); });</script>'.PHP_EOL;
+		$footer.= '</div>';
 		$footer.= '<!--// ATTACHMENT MODULE -->'.PHP_EOL;
 		
 		/**
