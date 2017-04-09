@@ -6,9 +6,10 @@ div[data-module=attachment][data-templet=default] div.button > button[data-loadi
 div[data-module=attachment][data-templet=default] div.button > button:hover {background:#828595; color:#fff;}
 div[data-module=attachment][data-templet=default] div.button > span {float:right; display:block; height:40px; line-height:40px; color:#666; font-size:12px;}
 
+div[data-module=attachment][data-templet=default] ul[data-role=files] {border:0; margin:0; padding:0;}
 div[data-module=attachment][data-templet=default] ul[data-role=files]:empty {display:none;}
 div[data-module=attachment][data-templet=default] ul[data-role=files] {list-style:none; display:block; width:100%; margin-left:-10px;}
-div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file] {display:inline-block; vertical-align:top; padding:10px 0px 0px 10px;}
+div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file] {display:inline-block; vertical-align:top; padding:10px 0px 0px 10px; height:auto; margin:0px;}
 div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file] > div {width:100px; max-height:165px; overflow:hidden; position:relative; z-index:0;}
 div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file] > div > i.icon {display:block; width:100px; height:100px; box-sizing:border-box; border:1px solid #ddd; margin-bottom:5px; position:relative; z-index:5;}
 div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file] > div > i.icon > div.preview {width:100%; height:100%; position:absolute; top:0; left:0; background-color:#fff; background-repeat:no-repeat; background-position:50% 50%; background-size:cover;}
