@@ -649,7 +649,7 @@ class ModuleAttachment {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
 		$extName = $imginfo[2];
-	
+		
 		switch($extName) {
 			case '2' :
 				$src = @ImageCreateFromJPEG($imgPath) or $result = false;
@@ -675,7 +675,13 @@ class ModuleAttachment {
 			if ($height == 0) {
 				$height = $width*$imginfo[1]/$imginfo[0];
 			}
-	
+			
+			if ($imginfo[0] == $width && $imginfo[1] == $height) {
+				@copy($imgPath,$thumbPath);
+				if ($delete == true) @unlink($imgPath);
+				return true;
+			}
+			
 			$thumb = @ImageCreateTrueColor($width,$height);
 			
 			switch ($type) {
@@ -697,9 +703,9 @@ class ModuleAttachment {
 			$type = $forceType != null ? $forceType : $type;
 			// Change FileName
 			if ($type == 'jpg') {
-				@ImageJPEG($thumb,$thumbPath,75) or $result = false;
+				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
-				@ImageGIF($thumb,$thumbPath,75) or $result = false;
+				@ImageGIF($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'png') {
 				@imagePNG($thumb,$thumbPath) or $result = false;
 			} else {
@@ -721,7 +727,13 @@ class ModuleAttachment {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
 		$extName = $imginfo[2];
-	
+		
+		if ($imginfo[0] == $width && $imginfo[1] == $height) {
+			@copy($imgPath,$thumbPath);
+			if ($delete == true) @unlink($imgPath);
+			return true;
+		}
+		
 		switch($extName) {
 			case '2' :
 				$src = @ImageCreateFromJPEG($imgPath) or $result = false;
@@ -799,9 +811,9 @@ class ModuleAttachment {
 			$type = $forceType != null ? $forceType : $type;
 			// Change FileName
 			if ($type == 'jpg') {
-				@ImageJPEG($thumb,$thumbPath,75) or $result = false;
+				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
-				@ImageGIF($thumb,$thumbPath,75) or $result = false;
+				@ImageGIF($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'png') {
 				@imagePNG($thumb,$thumbPath) or $result = false;
 			} else {
