@@ -539,6 +539,17 @@ class ModuleAttachment {
 		return $folder;
 	}
 	
+	function getTempDir($isFullPath=false) {
+		$folder = 'temp';
+		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
+			mkdir($this->IM->getAttachmentPath().'/'.$folder);
+			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
+		}
+		
+		if ($isFullPath == true) $folder = $this->IM->getAttachmentDir().'/'.$folder;
+		return $folder;
+	}
+	
 	function getTempPath($isFullPath=false) {
 		$folder = 'temp';
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
@@ -1032,7 +1043,7 @@ class ModuleAttachment {
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 			header("Cache-Control: private",false);
-			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.rawurlencode($filename));
+			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.$filename);
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
