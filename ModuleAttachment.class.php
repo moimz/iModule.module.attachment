@@ -71,6 +71,8 @@ class ModuleAttachment {
 		 */
 		$this->table = new stdClass();
 		$this->table->attachment = 'attachment_table';
+		
+		$this->IM->addHeadResource('style',$this->getModule()->getDir().'/styles/style.css');
 	}
 	
 	/**
@@ -454,7 +456,6 @@ class ModuleAttachment {
 	 */
 	function preload() {
 		$this->IM->addHeadResource('script',$this->getModule()->getDir().'/scripts/script.js');
-		$this->IM->addHeadResource('style',$this->getModule()->getDir().'/styles/style.css');
 		
 		if ($this->_templet_file == null) {
 			$Templet = $this->getTemplet($this->_templet);
@@ -863,6 +864,7 @@ class ModuleAttachment {
 		$fileInfo->code = Encoder($fileInfo->idx);
 		$fileInfo->module = $file->module;
 		$fileInfo->target = $file->target;
+		$fileInfo->extension = $this->getFileExtension($file->name);
 		
 		return $fileInfo;
 	}

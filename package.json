@@ -20,7 +20,7 @@
 	"language":"ko",
 	"admin":true,
 	"context":false,
-	"global":false,
+	"global":true,
 	"article":false,
 	"configs":{
 		"templet":{
