@@ -207,6 +207,10 @@ var Attachment = {
 				if (file.type == "image" && $("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el).length > 0) {
 					$wysiwyg.froalaEditor("image.insert",file.path,false,{idx:file.idx},$("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el),{success:true,file:file});
 				}
+				
+				if (file.type != "image") {
+					$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
+				}
 			}
 		}
 		
@@ -310,6 +314,9 @@ var Attachment = {
 			}
 		});
 	},
+	complete:function() {
+		
+	},
 	/**
 	 * 파일을 위지윅에디터에 삽입한다.
 	 *
@@ -357,7 +364,12 @@ var Attachment = {
 							var $form = $uploader.parents("form").eq(0);
 							$("input[data-role=file][data-idx="+idx+"]",$form).remove();
 							
-							// @todo 위지윅 에디터에서 삭제
+							var $wysiwyg = $("textarea[name="+$uploader.attr("data-uploader-target")+"]",$form);
+							if ($wysiwyg.length > 0) {
+								if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
+									$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+								}
+							}
 						}
 						
 						$uploader.triggerHandler("delete",[file]);
