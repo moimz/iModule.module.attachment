@@ -591,11 +591,15 @@ class ModuleAttachment {
 	}
 	
 	function getFileMime($path) {
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mime = finfo_file($finfo,$path);
-		finfo_close($finfo);
-		
-		return $mime;
+		if (is_file($path) == true) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = finfo_file($finfo,$path);
+			finfo_close($finfo);
+			
+			return $mime;
+		} else {
+			return false;
+		}
 	}
 	
 	function getFileType($mime) {
@@ -1045,7 +1049,7 @@ class ModuleAttachment {
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 			header("Cache-Control: private",false);
-			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.$filename);
+			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.rawurlencode($filename));
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
@@ -1057,8 +1061,12 @@ class ModuleAttachment {
 		}
 	}
 	
-	function filePublish($idx) {
-		$this->db()->update($this->table->attachment,array('status'=>'PUBLISHED'))->where('idx',$idx)->execute();
+	function filePublish($idx,$module=null,$target=null) {
+		$insert = array('status'=>'PUBLISHED');
+		if ($module != null) $insert['module'] = $module;
+		if ($target != null) $insert['target'] = $target;
+		
+		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 	}
 	
 	/**
