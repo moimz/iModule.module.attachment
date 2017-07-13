@@ -22,13 +22,13 @@ if ($file == null) {
 		header('Content-Type: '.$file->mime);
 		
 		if ($file->width > 1000) {
-			if (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.view') == true) {
+			if (is_file($this->IM->getAttachmentPath().'/'.$file->path.'.view') == true) {
 				if ($file->type == 'image') header('Content-Type: '.$file->mime);
 				else header('Content-Type: image/jpeg');
 				header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.view'));
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
-			} elseif ($file->type == 'image' && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
+			} elseif ($file->type == 'image' && is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
 				if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.view',1000,0,false) == false) {
 					header("HTTP/1.1 404 Not Found");
 					exit;
@@ -47,7 +47,7 @@ if ($file == null) {
 		}
 		exit;
 	} elseif (in_array($file->type,array('icon','svg')) == true) {
-		if (file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
+		if (is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
 			header('Content-Type: '.$file->mime);
 			header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path));
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);
