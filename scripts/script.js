@@ -95,7 +95,6 @@ var Attachment = {
 		
 		$.send(ENV.getProcessUrl("attachment","draft"),params,function(result) {
 			if (result.success == true) {
-				console.log("afterDraft",files[0].type);
 				for (var i=0, loop=result.files.length;i<loop;i++) {
 					if (result.files[i].code != null) {
 						files[i].idx = result.files[i].idx;
@@ -198,18 +197,16 @@ var Attachment = {
 					var result = e.target.result;
 					if (file.type == "image") {
 						$wysiwyg.froalaEditor("html.insert",'<p><img data-idx="'+file.idx+'" class="fr-uploading" src="'+result+'"></p>');
+					} else {
+						$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
 					}
 				};
 				reader.readAsDataURL(oFile);
 			}
 			
-			if (file.status == "COMPLETE") {
+			if (file.status == "COMPLETE" && oFile !== undefined && oFile.wysiwyg == true) {
 				if (file.type == "image" && $("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el).length > 0) {
 					$wysiwyg.froalaEditor("image.insert",file.path,false,{idx:file.idx},$("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el),{success:true,file:file});
-				}
-				
-				if (file.type != "image") {
-					$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
 				}
 			}
 		}
@@ -272,12 +269,6 @@ var Attachment = {
 					xhr.upload.addEventListener("progress",function(e) {
 						if (e.lengthComputable) {
 							Attachment.update(id,file.idx,file.uploaded + e.loaded);
-//							console.log("progress",{id:id,loaded:file.uploaded + e.loaded,total:file.size});
-							
-							/*
-							$(document).triggerHandler("Attachment.progress",[id,{id:file.id,loaded:file.loaded + e.loaded,total:file.size}]);
-							$(document).triggerHandler("Attachment.progressAll",[id,{loaded:Attachment.progress[id].loaded + file.loaded + e.loaded,total:Attachment.progress[id].total}]);
-							*/
 						}
 					},false);
 				}
