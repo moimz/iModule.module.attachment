@@ -61,9 +61,8 @@ if ($code == false) {
 				
 				$results->success = true;
 				$results->file = $file;
-				
-				//		$values->fileInfo = $this->fileUpload($file->idx);
-				//		$results->file = $values->fileInfo;
+				$results->idx = $file->idx;
+				$results->link = $file->type == 'image' ? $file->path : $file->download;
 			}
 		} else {
 			$results->success = true;

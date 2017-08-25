@@ -204,7 +204,7 @@ var Attachment = {
 				reader.readAsDataURL(oFile);
 			}
 			
-			if (file.status == "COMPLETE" && oFile !== undefined && oFile.wysiwyg == true) {
+			if (file.status == "COMPLETE") {
 				if (file.type == "image" && $("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el).length > 0) {
 					$wysiwyg.froalaEditor("image.insert",file.path,false,{idx:file.idx},$("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el),{success:true,file:file});
 				}
