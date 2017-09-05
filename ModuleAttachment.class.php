@@ -869,6 +869,7 @@ class ModuleAttachment {
 		$fileInfo->module = $file->module;
 		$fileInfo->target = $file->target;
 		$fileInfo->extension = $this->getFileExtension($file->name);
+		$fileInfo->status = $file->status;
 		
 		return $fileInfo;
 	}
