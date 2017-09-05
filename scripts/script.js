@@ -70,6 +70,32 @@ var Attachment = {
 		});
 	},
 	/**
+	 * DRAFT 파일을 삭제하고, 업로더를 초기화한다.
+	 *
+	 * @param string id 업로더고유값
+	 */
+	reset:function(id) {
+		var $uploader = $("#"+id);
+		var $form = $uploader.parents("form").eq(0);
+		
+		var $files = $("ul[data-role=files] > li[data-role=file]",$uploader);
+		
+		var codes = [];
+		for (var i=0, loop=$files.length;i<loop;i++) {
+			codes.push($files.eq(i).data("file").code);
+		}
+		
+		$.send(ENV.getProcessUrl("attachment","reset"),{codes:codes.join(",")},function(result) {
+			if (result.success == true) {
+				for (var i=0, loop=$files.length;i<loop;i++) {
+					$("input[data-role=file][data-idx="+$files.eq(i).data("file").idx+"]",$form).remove();
+				}
+				
+				$files.remove();
+			}
+		});
+	},
+	/**
 	 * 파일을 추가한다.
 	 *
 	 * @param string id 업로더고유값
