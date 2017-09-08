@@ -49,12 +49,13 @@ var Attachment = {
 	 * 파일을 불러온다.
 	 *
 	 * @param string id 업로더고유값
+	 * @param string url 불러올 주소 (옵션)
 	 */
-	load:function(id) {
+	load:function(id,url) {
 		var $uploader = $("#"+id);
-		if (!$uploader.attr("data-uploader-loader")) return;
+		if (!url && !$uploader.attr("data-uploader-loader")) return;
 		
-		var url = $uploader.attr("data-uploader-loader");
+		var url = url ? url : $uploader.attr("data-uploader-loader");
 		var params = {};
 		if ($uploader.attr("data-uploader-module")) params.module = $uploader.attr("data-uploader-module");
 		if ($uploader.attr("data-uploader-target")) params.target = $uploader.attr("data-uploader-target");
@@ -83,17 +84,12 @@ var Attachment = {
 		var codes = [];
 		for (var i=0, loop=$files.length;i<loop;i++) {
 			codes.push($files.eq(i).data("file").code);
+			$("input[data-role=file][data-idx="+$files.eq(i).data("file").idx+"]",$form).remove();
 		}
 		
-		$.send(ENV.getProcessUrl("attachment","reset"),{codes:codes.join(",")},function(result) {
-			if (result.success == true) {
-				for (var i=0, loop=$files.length;i<loop;i++) {
-					$("input[data-role=file][data-idx="+$files.eq(i).data("file").idx+"]",$form).remove();
-				}
-				
-				$files.remove();
-			}
-		});
+		$files.remove();
+		
+		$.send(ENV.getProcessUrl("attachment","reset"),{codes:codes.join(",")});
 	},
 	/**
 	 * 파일을 추가한다.
