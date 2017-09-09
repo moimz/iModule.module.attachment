@@ -874,6 +874,13 @@ class ModuleAttachment {
 		return $fileInfo;
 	}
 	
+	function getTotalFileSize($files) {
+		if (is_array($files) == false || count($files) == 0) return 0;
+		
+		$size = $this->db()->select($this->table->attachment,'sum(size) as total_size')->where('idx',$files,'IN')->getOne();
+		return isset($size->total_size) == true ? $size->total_size : 0;
+	}
+	
 	/**
 	 * 파일을 삭제한다.
 	 *
