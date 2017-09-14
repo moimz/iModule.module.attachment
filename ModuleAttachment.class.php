@@ -888,6 +888,8 @@ class ModuleAttachment {
 	 * @return boolean $success
 	 */
 	function fileDelete($idx) {
+		if (!$idx) return false;
+		
 		$idx = is_array($idx) == false ? array($idx) : $idx;
 		if (empty($idx) == true) return false;
 		
@@ -912,6 +914,8 @@ class ModuleAttachment {
 	}
 	
 	function fileUpload($idx) {
+		if (!$idx) return false;
+		
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		$filePath = $this->IM->getAttachmentPath().'/'.$file->path;
 		
@@ -1070,6 +1074,8 @@ class ModuleAttachment {
 	}
 	
 	function filePublish($idx,$module=null,$target=null) {
+		if (!$idx) return false;
+		
 		$insert = array('status'=>'PUBLISHED');
 		if ($module != null) $insert['module'] = $module;
 		if ($target != null) $insert['target'] = $target;
