@@ -562,6 +562,15 @@ class ModuleAttachment {
 		return $folder;
 	}
 	
+	function getTempFile($isFullPath=false) {
+		while (true) {
+			$hash = md5(time().rand(10000000,99999999));
+			if (is_file($this->getTempPath(true).'/'.$hash) == false) break;
+		}
+		
+		return $this->getTempPath($isFullPath).'/'.$hash;
+	}
+	
 	function getFileExtraInfo($idx,$param=null) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		$extra = $file->extra == '' ? null : json_decode($file->extra);
