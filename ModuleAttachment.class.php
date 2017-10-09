@@ -1030,10 +1030,23 @@ class ModuleAttachment {
 	
 	function fileDownload($idx,$isHit=true) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
+		$downloadable = true;
+		
+		if ($file->module != '' && $file->module != 'site') {
+			$mModule = $this->IM->getModule($file->module);
+			
+			if (method_exists($mModule,'syncAttachment') == true) {
+				$downloadable = $mModule->syncAttachment('download',$idx) !== false;
+			}
+		}
 		
 		if ($file == null) {
 			header("HTTP/1.1 404 Not Found");
-			$this->IM->printError('FILE_NOT_FOUND');
+			$this->IM->printError('FILE_NOT_FOUND',null,null,true);
+			exit;
+		} elseif ($downloadable === false) {
+			header("HTTP/1.1 403 Not Found");
+			$this->IM->printError('FORBIDDEN',null,null,true);
 			exit;
 		} else {
 			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->IM->getAttachmentPath().'/'.$file->path;
