@@ -857,12 +857,38 @@ class ModuleAttachment {
 		return $result;
 	}
 	
-	function getFileInfo($idx) {
+	/**
+	 * 파일 아이콘을 가져온다.
+	 *
+	 * @param string $type 항목종류
+	 * @param string $extension 파일확장자
+	 */
+	function getFileIcon($type,$extension='') {
+		$icon = 'icon_large_etc.png';
+		
+		if ($type == 'folder') $icon = 'icon_large_folder.png';
+		if ($type == 'document') $icon = 'icon_large_document.png';
+		if ($type == 'archive') $icon = 'icon_large_archive.png';
+		if ($type == 'video') $icon = 'icon_large_video.png';
+		if ($type == 'audio') $icon = 'icon_large_audio.png';
+		if ($type == 'image') $icon = 'icon_large_image.png';
+		
+		if ($extension == 'hwp') $icon = 'icon_large_hwp.png';
+		if ($extension == 'pdf') $icon = 'icon_large_pdf.png';
+		if ($extension == 'xls' || $extension == 'xlsx') $icon = 'icon_large_xls.png';
+		if ($extension == 'doc' || $extension == 'docx') $icon = 'icon_large_doc.png';
+		if ($extension == 'ppt' || $extension == 'pptx') $icon = 'icon_large_ppt.png';
+		
+		return $this->getModule()->getDir().'/images/'.$icon;
+	}
+	
+	function getFileInfo($idx,$is_realpath=false) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return null;
 		
 		$fileInfo = new stdClass();
 		$fileInfo->idx = $idx;
+		$fileInfo->icon = $this->getFileIcon($file->type,$this->getFileExtension($file->name));
 		$fileInfo->name = $file->name;
 		$fileInfo->size = $file->size;
 		$fileInfo->type = $file->type;
@@ -870,7 +896,7 @@ class ModuleAttachment {
 		$fileInfo->width = $file->width;
 		$fileInfo->height = $file->height;
 		$fileInfo->hit = $file->download;
-		$fileInfo->path = $this->getAttachmentUrl($idx);
+		$fileInfo->path = $is_realpath == true ? $this->IM->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx);
 		$fileInfo->thumbnail = $this->getAttachmentUrl($idx,'thumbnail');
 		$fileInfo->download = $this->getAttachmentUrl($idx,'download');
 		$fileInfo->reg_date = $file->reg_date;
