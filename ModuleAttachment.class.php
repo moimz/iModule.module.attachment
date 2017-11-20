@@ -119,7 +119,7 @@ class ModuleAttachment {
 		/**
 		 * 이벤트를 호출한다.
 		 */
-		$this->IM->fireEvent('beforeGetApi','attachment',$api,$values,null);
+		$this->IM->fireEvent('beforeGetApi','attachment',$api,$values);
 		
 		/**
 		 * 모듈의 api 폴더에 $api 에 해당하는 파일이 있을 경우 불러온다.
