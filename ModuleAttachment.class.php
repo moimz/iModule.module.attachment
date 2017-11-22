@@ -7,7 +7,8 @@
  * @file /modules/attachment/ModuleAttachment.class.php
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
- * @version 3.0.0.161211
+ * @version 3.0.0
+ * @modified 2017. 11. 22.
  */
 class ModuleAttachment {
 	/**
@@ -109,24 +110,29 @@ class ModuleAttachment {
 	 * [코어] 사이트 외부에서 현재 모듈의 API를 호출하였을 경우, API 요청을 처리하기 위한 함수로 API 실행결과를 반환한다.
 	 * 소스코드 관리를 편하게 하기 위해 각 요쳥별로 별도의 PHP 파일로 관리한다.
 	 *
+	 * @param string $protocol API 호출 프로토콜 (get, post, put, delete)
 	 * @param string $api API명
+	 * @param any $idx API 호출대상 고유값
+	 * @param object $params API 호출시 전달된 파라메터
 	 * @return object $datas API처리후 반환 데이터 (해당 데이터는 /api/index.php 를 통해 API호출자에게 전달된다.)
 	 * @see /api/index.php
 	 */
-	function getApi($api) {
+	function getApi($protocol,$api,$idx=null,$params=null) {
 		$data = new stdClass();
 		
-		/**
-		 * 이벤트를 호출한다.
-		 */
-		$this->IM->fireEvent('beforeGetApi','attachment',$api,$values);
+		$values = (object)get_defined_vars();
+		$this->IM->fireEvent('beforeGetApi',$this->getModule()->getName(),$api,$values);
 		
 		/**
 		 * 모듈의 api 폴더에 $api 에 해당하는 파일이 있을 경우 불러온다.
 		 */
-		if (is_file($this->getModule()->getPath().'/api/'.$api.'.php') == true) {
-			INCLUDE $this->getModule()->getPath().'/api/'.$api.'.php';
+		if (is_file($this->getModule()->getPath().'/api/'.$api.'.'.$protocol.'.php') == true) {
+			INCLUDE $this->getModule()->getPath().'/api/'.$api.'.'.$protocol.'.php';
 		}
+		
+		unset($values);
+		$values = (object)get_defined_vars();
+		$this->IM->fireEvent('afterGetApi',$this->getModule()->getName(),$api,$values,$data);
 		
 		return $data;
 	}
@@ -222,6 +228,8 @@ class ModuleAttachment {
 			
 			if ($string != null) $returnString = $string;
 		}
+		
+		$this->IM->fireEvent('afterGetText',$this->getModule()->getName(),$code,$returnString);
 		
 		/**
 		 * 언어셋 텍스트가 없는경우 iModule 코어에서 불러온다.
@@ -1142,9 +1150,9 @@ class ModuleAttachment {
 	 */
 	function doProcess($action) {
 		$results = new stdClass();
-		$values = new stdClass();
 		
-		$this->IM->fireEvent('beforeDoProcess','attachment',$action,$values,$results);
+		$values = (object)get_defined_vars();
+		$this->IM->fireEvent('beforeDoProcess',$this->getModule()->getName(),$action,$values);
 		
 		/**
 		 * 모듈의 process 폴더에 $action 에 해당하는 파일이 있을 경우 불러온다.
@@ -1153,157 +1161,9 @@ class ModuleAttachment {
 			INCLUDE $this->getModule()->getPath().'/process/'.$action.'.php';
 		}
 		
+		unset($values);
 		$values = (object)get_defined_vars();
-		$this->IM->fireEvent('afterDoProcess','attachment',$action,$values,$results);
-		
-		if ($action == 'thumbnail') {
-			$idx = Request('idx');
-			$name = Request('name');
-			
-			$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-			
-			if ($file == null) {
-				header("HTTP/1.1 404 Not Found");
-				exit;
-			} else {
-				if (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.thumb') == true) {
-					if ($file->type == 'image') header('Content-Type: '.$file->mime);
-					else header('Content-Type: image/jpeg');
-					header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.thumb'));
-					readfile($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
-					exit;
-				} elseif ($file->type == 'image' && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-					if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.thumb',($file->width <= $file->height ? 300 : 0),($file->width > $file->height ? 300 : 0),false) == false) {
-						header("HTTP/1.1 404 Not Found");
-						exit;
-					}
-					header('Content-Type: '.$file->mime);
-					header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.thumb'));
-					readfile($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
-					exit;
-				} else {
-					header("HTTP/1.1 404 Not Found");
-					exit;
-				}
-			}
-		}
-		
-		if ($action == 'load') {
-			$idx = Decoder(Request('key')) != false ? json_decode(Decoder(Request('key'))) : array();
-			$values->files = array();
-			for ($i=0, $loop=sizeof($idx);$i<$loop;$i++) {
-				$fileInfo = $this->getFileInfo($idx[$i]);
-				if ($fileInfo != null) $values->files[] = $fileInfo;
-			}
-			$results->success = true;
-			$results->files = $values->files;
-		}
-		
-		if ($action == '@updateFileType') {
-			$attachments = $this->db()->select($this->table->attachment)->get();
-			for ($i=0, $loop=count($attachments);$i<$loop;$i++) {
-				$type = $this->getFileType($attachments[$i]->mime);
-				$this->db()->update($this->table->attachment,array('type'=>$type))->where('idx',$attachments[$i]->idx)->execute();
-			}
-			
-			$results->success = true;
-		}
-		
-		if ($action == '@updateStatus') {
-			$updates = array();
-			$files = $this->db()->select($this->table->attachment)->get();
-			
-			for ($i=0, $loop=count($files);$i<$loop;$i++) {
-				if ($files[$i]->module == 'site') {
-					if ($files[$i]->target == 'logo') {
-						$sites = $this->IM->db()->select($this->IM->getTable('site'))->get();
-						$isPublished = false;
-						foreach ($sites as $domain=>$site) {
-							$logo = json_decode($site->logo,true);
-							if (in_array($files[$i]->idx,$logo) == true) {
-								$isPublished = true;
-								break;
-							}
-						}
-						
-						if ($isPublished == true) {
-							if ($files[$i]->status == 'DRAFT') {
-								$this->db()->update($this->table->attachment,array('status'=>'PUBLISHED'))->where('idx',$files[$i]->idx)->execute();
-								$files[$i]->status = 'PUBLISHED';
-								array_push($updates,$files[$i]);
-							}
-						} else {
-							if ($files[$i]->status == 'PUBLISHED') {
-								$this->db()->update($this->table->attachment,array('status'=>'DRAFT'))->where('idx',$files[$i]->idx)->execute();
-								$files[$i]->status = 'DRAFT';
-								array_push($updates,$files[$i]);
-							}
-						}
-					} else {
-						$attachment = $this->IM->db()->select($this->IM->getTable('site'))->where($files[$i]->target,$files[$i]->idx)->getOne();
-						if ($files[$i]->target == 'image' && $attachment == null) $attachment = $this->IM->db()->select($this->IM->getTable('page'))->where('image',$files[$i]->idx)->getOne();
-						if ($attachment == null) {
-							if ($files[$i]->status == 'PUBLISHED') {
-								$this->db()->update($this->table->attachment,array('status'=>'DRAFT'))->where('idx',$files[$i]->idx)->execute();
-								$files[$i]->status = 'DRAFT';
-								array_push($updates,$files[$i]);
-							}
-						} else {
-							if ($files[$i]->status == 'DRAFT') {
-								$this->db()->update($this->table->attachment,array('status'=>'PUBLISHED'))->where('idx',$files[$i]->idx)->execute();
-								$files[$i]->status = 'PUBLISHED';
-								array_push($updates,$files[$i]);
-							}
-						}
-					}
-				} else {
-					if ($this->Module->isInstalled($files[$i]->module) == true) { // Installed module
-						$module = $this->IM->getModule($files[$i]->module);
-						if (method_exists($module,'getAttachmentFile') == true) {
-							$attachment = $module->getAttachmentFile($files[$i]);
-							if ($attachment == null) {
-								if ($files[$i]->status == 'PUBLISHED') {
-									$this->db()->update($this->table->attachment,array('status'=>'DRAFT'))->where('idx',$files[$i]->idx)->execute();
-									$files[$i]->status = 'DRAFT';
-									array_push($updates,$files[$i]);
-								}
-							} else {
-								if ($files[$i]->status == 'DRAFT') {
-									$this->db()->update($this->table->attachment,array('status'=>'PUBLISHED'))->where('idx',$files[$i]->idx)->execute();
-									$files[$i]->status = 'PUBLISHED';
-									array_push($updates,$files[$i]);
-								}
-							}
-						}
-					} else { // Not installed module, change status
-						if ($files[$i]->status == 'PUBLISHED') {
-							$this->db()->update($this->table->attachment,array('status'=>'DRAFT'))->where('idx',$files[$i]->idx)->execute();
-							$files[$i]->status = 'DRAFT';
-							array_push($updates,$files[$i]);
-						}
-					}
-				}
-				
-				
-				
-			}
-			
-			$data->success = true;
-			$data->updates = $updates;
-		}
-		
-		if ($action == '@normalize') {
-			$mNormalizer = new UnicodeNormalizer();
-			$files = $this->db()->select($this->table->attachment)->get();
-			for ($i=0, $loop=count($files);$i<$loop;$i++) {
-				$files[$i]->name = $mNormalizer->normalize($files[$i]->name);
-				$this->db()->update($this->table->attachment,array('name'=>$files[$i]->name))->where('idx',$files[$i]->idx)->execute();
-			}
-			
-			$data->success = true;
-		}
-		
-		$this->IM->fireEvent('afterDoProcess','attachment',$action,$values,$results);
+		$this->IM->fireEvent('afterDoProcess',$this->getModule()->getName(),$action,$values,$results);
 		
 		return $results;
 	}
