@@ -1093,7 +1093,7 @@ class ModuleAttachment {
 				header("Expires: 0");
 				header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 				header("Cache-Control: private",false);
-				header('Content-Disposition: attachment; filename="'.$file->name.'"; filename*=UTF-8\'\''.rawurlencode($file->name));
+				header('Content-Disposition: attachment; filename="'.rawurlencode($file->name).'"; filename*=UTF-8\'\''.rawurlencode($file->name));
 				header("Content-Transfer-Encoding: binary");
 				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
 				header('Content-Length: '.$file->size);
@@ -1117,14 +1117,14 @@ class ModuleAttachment {
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 			header("Cache-Control: private",false);
-			header('Content-Disposition: attachment; filename="'.$filename.'"; filename*=UTF-8\'\''.rawurlencode($filename));
+			header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"; filename*=UTF-8\'\''.rawurlencode($filename));
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
 
 			readfile($this->getTempPath(true).'/'.$name);
 			
-			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
+//			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
 			exit;
 		}
 	}
