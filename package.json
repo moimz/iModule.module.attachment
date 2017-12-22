@@ -45,68 +45,83 @@
 			"columns":{
 				"idx":{
 					"type":"int",
-					"length":11
+					"length":11,
+					"comment":"고유값"
 				},
 				"module":{
 					"type":"varchar",
-					"length":20
+					"length":20,
+					"comment":"모듈정보"
 				},
 				"target":{
 					"type":"varchar",
-					"length":50
+					"length":50,
+					"comment":"업로드대상정보"
 				},
 				"path":{
 					"type":"varchar",
-					"length":255
+					"length":255,
+					"comment":"업로드경로"
 				},
 				"name":{
 					"type":"varchar",
-					"length":255
+					"length":255,
+					"comment":"파일명"
 				},
 				"type":{
 					"type":"varchar",
-					"length":10
+					"length":10,
+					"comment":"파일형태"
 				},
 				"mime":{
 					"type":"varchar",
-					"length":100
+					"length":100,
+					"comment":"MIME정보"
 				},
 				"size":{
 					"type":"bigint",
-					"length":15
+					"length":15,
+					"comment":"파일크기"
 				},
 				"width":{
 					"type":"int",
 					"length":5,
-					"default":0
+					"default":0,
+					"comment":"이미지가로크기"
 				},
 				"height":{
 					"type":"int",
 					"length":5,
-					"default":0
+					"default":0,
+					"comment":"이미지세로크기"
 				},
 				"wysiwyg":{
 					"type":"enum",
 					"length":"'TRUE','FALSE'",
-					"default":"FALSE"
+					"default":"FALSE",
+					"comment":"위지윅업로드여부"
 				},
 				"reg_date":{
 					"type":"int",
-					"length":11
+					"length":11,
+					"comment":"등록일"
 				},
 				"status":{
 					"type":"enum",
 					"length":"'DRAFT','PUBLISHED','DELETE'",
-					"default":"DRAFT"
+					"default":"DRAFT",
+					"comment":"등록상태"
 				},
 				"download":{
 					"type":"int",
 					"length":11,
-					"default":0
+					"default":0,
+					"comment":"다운로드수"
 				},
 				"extra":{
 					"type":"text",
-					"is_null":true
+					"is_null":true,
+					"comment":"기타"
 				}
 			},
 			"indexes":{
@@ -114,7 +129,8 @@
 				"module":"index",
 				"reg_date":"index"
 			},
-			"auto_increment":"idx"
+			"auto_increment":"idx",
+			"comment":"파일첨부관리"
 		}
 	}
 }
