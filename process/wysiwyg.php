@@ -37,6 +37,7 @@ if (isset($_FILES['file']['name']) == true && $_FILES['file']['name']) {
 	
 	$file = $this->getFileInfo($idx);
 	$results->idx = $idx;
+	$results->code = Encoder($idx);
 	$results->link = $type == 'image' ? $file->path : $file->download;
 }
 ?>
