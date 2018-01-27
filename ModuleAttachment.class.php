@@ -1093,10 +1093,12 @@ class ModuleAttachment {
 				header("Expires: 0");
 				header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 				header("Cache-Control: private",false);
-				header('Content-Disposition: attachment; filename="'.rawurlencode($file->name).'"; filename*=UTF-8\'\''.rawurlencode($file->name));
+				header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($file->name));
 				header("Content-Transfer-Encoding: binary");
 				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
 				header('Content-Length: '.$file->size);
+				
+				session_write_close();
 				
 				readfile($filePath);
 				exit;
@@ -1109,7 +1111,7 @@ class ModuleAttachment {
 	}
 	
 	function tempFileDownload($name,$is_delete=false,$newname='') {
-		if (file_exists($this->getTempPath(true).'/'.$name) == true) {
+		if (is_file($this->getTempPath(true).'/'.$name) == true) {
 			$mime = $this->getFileMime($this->getTempPath(true).'/'.$name);
 			$filename = $newname ? $newname : $name;
 			
@@ -1117,14 +1119,20 @@ class ModuleAttachment {
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 			header("Cache-Control: private",false);
-			header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"; filename*=UTF-8\'\''.rawurlencode($filename));
+			header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($filename));
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
-
+			
+			session_write_close();
+			
 			readfile($this->getTempPath(true).'/'.$name);
 			
-//			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
+			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
+			exit;
+		} else {
+			header("HTTP/1.1 404 Not Found");
+			$this->IM->printError('FILE_NOT_FOUND');
 			exit;
 		}
 	}
