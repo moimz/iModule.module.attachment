@@ -26,6 +26,8 @@ if ($file == null) {
 				if ($file->type == 'image') header('Content-Type: '.$file->mime);
 				else header('Content-Type: image/jpeg');
 				header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.view'));
+				
+				session_write_close();
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
 			} elseif ($file->type == 'image' && is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
@@ -35,6 +37,8 @@ if ($file == null) {
 				}
 				header('Content-Type: '.$file->mime);
 				header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.view'));
+				
+				session_write_close();
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
 			} else {
@@ -43,6 +47,8 @@ if ($file == null) {
 			}
 		} else {
 			header('Content-Type: '.$file->size);
+			
+			session_write_close();
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);
 		}
 		exit;
@@ -50,6 +56,8 @@ if ($file == null) {
 		if (is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
 			header('Content-Type: '.$file->mime);
 			header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path));
+			
+			session_write_close();
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);
 			exit;
 		} else {
