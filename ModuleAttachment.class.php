@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2017. 11. 22.
+ * @modified 2018. 3. 3.
  */
 class ModuleAttachment {
 	/**
@@ -50,6 +50,7 @@ class ModuleAttachment {
 	private $_wysiwygOnly = false;
 	private $_buttonText = null;
 	private $_loader = null;
+	private $_disabled = false;
 	
 	/**
 	 * class 선언
@@ -351,6 +352,7 @@ class ModuleAttachment {
 		$this->_wysiwyg = false;
 		$this->_buttonText = null;
 		$this->_loader = null;
+		$this->_disabled = false;
 	}
 	
 	/**
@@ -483,9 +485,12 @@ class ModuleAttachment {
 	
 	/**
 	 * 업로더를 가져온다.
+	 *
+	 * @return string $html 업로더 HTML
 	 */
 	function get() {
 		$this->preload();
+		if ($this->_disabled == true) return '';
 		
 		$this->_id = $this->_id == null ? uniqid('UPLOADER_') : $this->_id;
 		
@@ -512,6 +517,23 @@ class ModuleAttachment {
 		
 		$this->reset();
 		return $html;
+	}
+	
+	/**
+	 * 업로더를 비활성화 한다.
+	 *
+	 * @return ModuleAttachment $this
+	 */
+	function disable() {
+		$this->_disabled = true;
+		return $this;
+	}
+	
+	/**
+	 * 업로더를 출력한다.
+	 */
+	function doLayout() {
+		echo $this->get();
 	}
 	
 	private function _buildScript() {
