@@ -6,7 +6,8 @@
  * @file /modules/attachment/scripts/script.js
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
- * @version 3.0.0.161211
+ * @version 3.0.0
+ * @modified 2018. 3. 24.
  */
 var Attachment = {
 	/**
@@ -210,7 +211,7 @@ var Attachment = {
 		
 		if ($uploader.attr("data-uploader-wysiwyg") == "TRUE") {
 			var $form = $uploader.parents("form").eq(0);
-			var $wysiwyg = $("textarea[name="+$uploader.attr("data-uploader-target")+"]",$form);
+			var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
 			if ($wysiwyg.length == 0) return;
 			
 			if (oFile && oFile.wysiwyg == true) {
@@ -345,7 +346,7 @@ var Attachment = {
 		if ($uploader.attr("data-uploader-wysiwyg") == "FALSE" || $uploader.parents("form").length == 0) return;
 		
 		var $form = $uploader.parents("form").eq(0);
-		var $wysiwyg = $("textarea[name="+$uploader.attr("data-uploader-target")+"]",$form);
+		var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
 		if ($wysiwyg.length == 0) return;
 		
 		if (file.type == "image") {
@@ -377,7 +378,7 @@ var Attachment = {
 							var $form = $uploader.parents("form").eq(0);
 							$("input[data-role=file][data-idx="+idx+"]",$form).remove();
 							
-							var $wysiwyg = $("textarea[name="+$uploader.attr("data-uploader-target")+"]",$form);
+							var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
 							if ($wysiwyg.length > 0) {
 								if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
 									$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
