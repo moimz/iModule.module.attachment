@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 3. 3.
+ * @modified 2018. 4. 1.
  */
 class ModuleAttachment {
 	/**
@@ -34,8 +34,6 @@ class ModuleAttachment {
 	 */
 	private $lang = null;
 	private $oLang = null;
-	
-	private $_buffers = array();
 	
 	/**
 	 * 첨부파일 설정변수
@@ -254,18 +252,6 @@ class ModuleAttachment {
 		
 		$description = null;
 		switch ($code) {
-			case 'NOT_ALLOWED_SIGNUP' :
-				if ($value != null && is_object($value) == true) {
-					$description = $value->title;
-				}
-				break;
-				
-			case 'DISABLED_LOGIN' :
-				if ($value != null && is_numeric($value) == true) {
-					$description = str_replace('{SECOND}',$value,$this->getText('text/remain_time_second'));
-				}
-				break;
-			
 			default :
 				if (is_object($value) == false && $value) $description = $value;
 		}
@@ -559,6 +545,12 @@ class ModuleAttachment {
 		return $script;
 	}
 	
+	/**
+	 * 하나의 첨부파일폴더에 너무 많은 파일이 저장되는 것을 방지하기 위해 매달 새로운 폴더를 생성하고 해당 경로를 반환한다.
+	 *
+	 * @param boolean $isFullPath __IM_PATH__ 를 포함한 전체경로를 반환할 지 여부(기본값 : false)
+	 * @return string $path
+	 */
 	function getCurrentPath($isFullPath=false) {
 		$folder = date('Ym');
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
@@ -672,6 +664,13 @@ class ModuleAttachment {
 		
 	}
 	
+	/**
+	 * 실제 서버상의 경로는 보안을 위하여 숨기고, 유저가 접근할 수 있는 파일경로(URL)을 반환한다.
+	 *
+	 * @param int $idx 파일주소를 가져올 파일고유번호
+	 * @param string $view 접근하는 방식 (view : 웹페이지 상에 embed 되기 위한 주소, thumbnail : 웹페이지 상에서 embed 되기 위한 썸네일 주소, download : 파일종류와 무관하게 무조건 다운로드되는 주소)
+	 * @return string $url
+	 */
 	function getAttachmentUrl($idx,$view='view',$isFullUrl=false) {
 		if (is_object($idx) == true) {
 			$file = $idx;
@@ -700,6 +699,17 @@ class ModuleAttachment {
 		}
 	}
 	
+	/**
+	 * 썸네일을 생성한다.
+	 *
+	 * @param string $imgPath 썸네일을 생성할 대상 이미지 경로
+	 * @param string $thumbPath 썸네일이 저장될 경로
+	 * @param int $width 썸네일 가로크기 (0 일 경우 지정된 썸네일 세로크기에 맞춰 동일비율로 축소한다. 가로크기 및 세로크기가 모두 0이 될 수는 없다.)
+	 * @param int $height 썸네일 세로크기 (0 일 경우 지정된 썸네일 가로크기에 맞춰 동일비율로 축소한다. 가로크기 및 세로크기가 모두 0이 될 수는 없다.)
+	 * @param boolean $is_delete 원본 이미지파일을 삭제할 지 여부
+	 * @param string $forceType 원본 이미지의 포맷과 무관하게 썸네일의 이미지포맷(JPG, GIF, PNG)를 지정할 경우 해당 포맷명
+	 * @return boolean $success
+	 */
 	function createThumbnail($imgPath,$thumbPath,$width,$height,$delete=false,$forceType=null) {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
@@ -756,7 +766,7 @@ class ModuleAttachment {
 			@ImageCopyResampled($thumb,$src,0,0,0,0,$width,$height,@ImageSX($src),@ImageSY($src)) or $result = false;
 			
 			$type = $forceType != null ? $forceType : $type;
-			// Change FileName
+			
 			if ($type == 'jpg') {
 				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
@@ -778,6 +788,17 @@ class ModuleAttachment {
 		return $result;
 	}
 	
+	/**
+	 * 썸네일을 생성할때 지정된 가로 및 세로크기에 맞춰 비율에 따라 원본이미지를 자른 후 저장한다.
+	 *
+	 * @param string $imgPath 썸네일을 생성할 대상 이미지 경로
+	 * @param string $thumbPath 썸네일이 저장될 경로
+	 * @param int $width 썸네일 가로크기
+	 * @param int $height 썸네일 세로크기
+	 * @param boolean $is_delete 원본 이미지파일을 삭제할 지 여부
+	 * @param string $forceType 원본 이미지의 포맷과 무관하게 썸네일의 이미지포맷(JPG, GIF, PNG)를 지정할 경우 해당 포맷명
+	 * @return boolean $success
+	 */
 	function cropThumbnail($imgPath,$thumbPath,$width,$height,$delete=false,$forceType=null) {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
@@ -821,10 +842,8 @@ class ModuleAttachment {
 				$y = round(($imginfo[1] - $rs_img_height) / 2); 
 			}
 			
-			// copyresampled 값이 동일하다 why? 이미지의 확대 축소가 발생하지는 않기 때문이다. 
-			$sc_img_width = $rs_img_width; 
-			$sc_img_height = $rs_img_height; 
-				
+			$sc_img_width = $rs_img_width;
+			$sc_img_height = $rs_img_height;
 			
 			$crop = @ImageCreateTrueColor($rs_img_width,$rs_img_height);
 			
@@ -864,7 +883,7 @@ class ModuleAttachment {
 			}
 			
 			$type = $forceType != null ? $forceType : $type;
-			// Change FileName
+			
 			if ($type == 'jpg') {
 				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
@@ -912,6 +931,13 @@ class ModuleAttachment {
 		return $this->getModule()->getDir().'/images/'.$icon;
 	}
 	
+	/**
+	 * 파일정보를 반환한다.
+	 *
+	 * @param int $idx 파일고유번호
+	 * @param boolean $is_realpath 파일의 실제서버상의 경로를 반환할지, 유저가 접근할 수 있는 파일경로(URL)을 반환할 지 여부(기본값 : false)
+	 * @return object $fileInfo 파일정보
+	 */
 	function getFileInfo($idx,$is_realpath=false) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return null;
@@ -978,6 +1004,14 @@ class ModuleAttachment {
 		return true;
 	}
 	
+	/**
+	 * 파일 업로드를 완료한다.
+	 * 업로드가 시작되기전 해당파일이 업로드될 임시주소를 먼저 생성하기 위해, 데이터베이스에 업로드예정파일에 대한 메타데이터를 미리 생성하고,
+	 * 파일업로드가 완료되는 시점에 해당 파일을 정상업로드 상태로 변경한다.
+	 *
+	 * @param int $idx 업로드를 완료할 파일고유번호
+	 * @return object $fileInfo 업로드가 완료된 파일정보
+	 */
 	function fileUpload($idx) {
 		if (!$idx) return false;
 		
@@ -1003,6 +1037,17 @@ class ModuleAttachment {
 		return $this->getFileInfo($idx);
 	}
 	
+	/**
+	 * 특정경로에 존재하는 파일을 첨부파일모듈상의 파일로 저장한다.
+	 *
+	 * @param string $name 저장할 파일명
+	 * @param string $filePath 저장할 파일이 존재하는 경로
+	 * @param string $module 파일을 저장하는 모듈
+	 * @param string $target 파일을 저장하는 대상
+	 * @param string $status 파일 상태 (DRAFT : 임시파일 / PUBLISHED : 출판된파일)
+	 * @param boolean $is_delete 저장할 파일을 첨부파일모듈 폴더구조에 맞게 이동한 뒤, 이동되기전 파일을 삭제할 지 여부(기본값 : true)
+	 * @return boolean $success
+	 */
 	function fileSave($name,$filePath,$module='',$target='',$status='DRAFT',$isDelete=true) {
 		$insert = array();
 		$insert['module'] = $module;
@@ -1035,6 +1080,15 @@ class ModuleAttachment {
 		return $idx;
 	}
 	
+	/**
+	 * 기존파일을 새로운 파일로 대체한다.
+	 *
+	 * @param int $idx 대체할 원본파일번호
+	 * @param string $name 대체되는 파일명
+	 * @param string $filePath 대체되는 파일이 존재하는 경로
+	 * @param boolean $is_delete 대체된 기존파일을 삭제할 지 여부(기본값 : true)
+	 * @return boolean $success
+	 */
 	function fileReplace($idx,$name,$filePath,$isDelete=true) {
 		if (is_numeric($idx) == false) return false;
 		$oFile = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
@@ -1073,6 +1127,13 @@ class ModuleAttachment {
 		return $idx;
 	}
 	
+	/**
+	 * 파일을 복사한다.
+	 *
+	 * @param int $idx 복사할 원본파일번호
+	 * @param string $target 복사를 하는 대상 (없을 경우 원본파일을 업로드한 대상이 유지된다.)
+	 * @return boolean $success
+	 */
 	function fileCopy($idx,$target=null) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return false;
@@ -1084,10 +1145,19 @@ class ModuleAttachment {
 		}
 	}
 	
+	/**
+	 * 파일을 다운로드한다.
+	 *
+	 * @param string $idx 다운로드할 파일고유번호
+	 * @param boolean $isHit 다운로드 숫자를 증가할지 여부(기본값 : true)
+	 */
 	function fileDownload($idx,$isHit=true) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-		$downloadable = true;
 		
+		/**
+		 * 파일을 업로드한 모듈을 호출하여, 파일 다운로드권한을 확인한다.
+		 */
+		$downloadable = true;
 		if ($file->module != '' && $file->module != 'site') {
 			$mModule = $this->IM->getModule($file->module);
 			
@@ -1097,12 +1167,10 @@ class ModuleAttachment {
 		}
 		
 		if ($file == null) {
-			header("HTTP/1.1 404 Not Found");
-			$this->IM->printError('FILE_NOT_FOUND',null,null,true);
+			$this->printError('FILE_NOT_FOUND');
 			exit;
 		} elseif ($downloadable === false) {
-			header("HTTP/1.1 403 Not Found");
-			$this->IM->printError('FORBIDDEN',null,null,true);
+			$this->printError('FILE_ACCESS_DENIED',$this->getAttachmentUrl($idx,'download'));
 			exit;
 		} else {
 			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->IM->getAttachmentPath().'/'.$file->path;
@@ -1125,13 +1193,19 @@ class ModuleAttachment {
 				readfile($filePath);
 				exit;
 			} else {
-				header("HTTP/1.1 404 Not Found");
-				$this->IM->printError('FILE_NOT_FOUND');
+				$this->printError('FILE_NOT_FOUND',$filePath);
 				exit;
 			}
 		}
 	}
 	
+	/**
+	 * 임시폴더에 존재하는 임시파일을 다운로드 받는다.
+	 *
+	 * @param string $name 임시폴더내 존재하는 파일명
+	 * @param boolean $is_delete 파일 다운로드 작업 후 해당 임시파일을 삭제할 지 여부 (기본값 false)
+	 * @param string $newname 임시파일명을 다운로드 받을 때 다운로드 받아질 파일명
+	 */
 	function tempFileDownload($name,$is_delete=false,$newname='') {
 		if (is_file($this->getTempPath(true).'/'.$name) == true) {
 			$mime = $this->getFileMime($this->getTempPath(true).'/'.$name);
@@ -1153,12 +1227,20 @@ class ModuleAttachment {
 			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
 			exit;
 		} else {
-			header("HTTP/1.1 404 Not Found");
-			$this->IM->printError('FILE_NOT_FOUND');
+			$this->printError('FILE_NOT_FOUND',$this->getTempPath(true).'/'.$name);
 			exit;
 		}
 	}
 	
+	/**
+	 * 파일정보를 출판됨 상태로 변경한다.
+	 * 기본적으로 업로드된 파일은 임시파일상태로 업로드가 되며, 출판상태로 변경되지 않을 경우 임시파일정리 작업시 파일이 삭제된다.
+	 *
+	 * @param int $idx 파일고유번호
+	 * @param string $module 파일을 출판한 모듈명(없을 경우 파일업로드시 기록된 모듈명을 유지한다.)
+	 * @param string $target 파일을 출판한 대상(없을 경우 파일업로드시 기록된 대상을 유지한다.)
+	 * @return boolean $success
+	 */
 	function filePublish($idx,$module=null,$target=null) {
 		if (!$idx) return false;
 		
@@ -1167,6 +1249,30 @@ class ModuleAttachment {
 		if ($target != null) $insert['target'] = $target;
 		
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
+		return true;
+	}
+	
+	/**
+	 * 파일접근과 관련된 에러메세지를 띄운다.
+	 *
+	 * @param string $code 에러코드
+	 * @param string $path 파일경로 또는 파일명
+	 */
+	function printError($code,$path=null) {
+		$error = new stdClass();
+		$error->message = $this->getErrorText($code);
+		$error->description = $path;
+		$error->type = 'back';
+		
+		if ($code == 'FILE_NOT_FOUND') {
+			header("HTTP/1.1 404 Not Found");
+		}
+		
+		if ($code == 'FILE_ACCESS_DENIED') {
+			header("HTTP/1.1 403 FORBIDDEN");
+		}
+		
+		$this->IM->printError($error,null,null,true);
 	}
 	
 	/**
