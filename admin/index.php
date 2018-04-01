@@ -6,8 +6,9 @@
  * 
  * @file /modules/attachment/admin/index.php
  * @author Arzz (arzz@arzz.com)
- * @license MIT License
- * @version 3.0.0.160910
+ * @license GPLv3
+ * @version 3.0.0
+ * @modified 2018. 4. 1.
  */
 if (defined('__IM__') == false) exit;
 ?>

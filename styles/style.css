@@ -1,12 +1,13 @@
 /**
  * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
  *
- * 첨부파일 업로더의 기본 스타일을 지정한다.
+ * 첨부파일 업로더의 기본 스타일 및 사이트 전역에 걸쳐 첨부파일목록 스타일시트를 정의한다.
  * 
  * @file /modules/attachment/styles/style.css
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
- * @version 3.0.0.161211
+ * @version 3.0.0
+ * @modified 2018. 4. 1.
  */
 div[data-module=attachment] i.icon {display:inline-block; background-repeat:no-repeat; background-position:50% 50%; background-image:url(../images/icon_large_etc.png);}
 div[data-module=attachment] i.icon[data-type=folder] {background-image:url(../images/icon_large_folder.png);}

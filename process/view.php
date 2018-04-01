@@ -2,12 +2,13 @@
 /**
  * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
  *
- * 첨부파일이 열수있는 경우 열고, 그렇지 않은 경우 다운로드한다.
+ * 첨부파일이 웹페이지상에서 embed 될 수 있는 경우, 브라우져상에서 파일을 출력하고, 그렇지 않은 경우 다운로드한다.
  * 
  * @file /modules/attachment/process/view.php
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
- * @version 3.0.0.161211
+ * @version 3.0.0
+ * @modified 2018. 4. 1.
  */
 if (defined('__IM__') == false) exit;
 
