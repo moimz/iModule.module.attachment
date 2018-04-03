@@ -1224,7 +1224,11 @@ class ModuleAttachment {
 			
 			readfile($this->getTempPath(true).'/'.$name);
 			
-			if ($is_delete == true) unlink($this->getTempPath(true).'/'.$name);
+			if ($is_delete == true) {
+				flush();
+				sleep(1);
+				unlink($this->getTempPath(true).'/'.$name);
+			}
 			exit;
 		} else {
 			$this->printError('FILE_NOT_FOUND',$this->getTempPath(true).'/'.$name);
