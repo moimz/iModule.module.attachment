@@ -974,7 +974,7 @@ class ModuleAttachment {
 		$fileInfo->extension = $this->getFileExtension($file->name);
 		$fileInfo->status = $file->status;
 		$fileInfo->origin = $file->origin;
-		$fileInfo->duplicate = $file->duplicate;
+		$fileInfo->duplicate = $file->duplicate > 0 ? $this->db()->select($this->table->attachment,'idx')->where('origin',$idx)->get('idx') : array();
 		
 		return $fileInfo;
 	}
@@ -1186,7 +1186,6 @@ class ModuleAttachment {
 			unset($file->idx);
 			$file->size = 0;
 			$file->origin = $idx;
-			$file->target = $target;
 			$file->reg_date = time();
 			$file->download = 0;
 			
