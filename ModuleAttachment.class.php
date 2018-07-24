@@ -958,7 +958,7 @@ class ModuleAttachment {
 		$fileInfo->idx = $idx;
 		$fileInfo->icon = $this->getFileIcon($file->type,$this->getFileExtension($file->name));
 		$fileInfo->name = $file->name;
-		$fileInfo->size = $file->size;
+		$fileInfo->size = $file->origin == 0 ? $file->size : $this->getFileInfo($file->origin)->size;
 		$fileInfo->type = $file->type;
 		$fileInfo->mime = $file->mime;
 		$fileInfo->width = $file->width;
@@ -973,6 +973,8 @@ class ModuleAttachment {
 		$fileInfo->target = $file->target;
 		$fileInfo->extension = $this->getFileExtension($file->name);
 		$fileInfo->status = $file->status;
+		$fileInfo->origin = $file->origin;
+		$fileInfo->duplicate = $file->duplicate;
 		
 		return $fileInfo;
 	}
@@ -997,20 +999,36 @@ class ModuleAttachment {
 		if (empty($idx) == true) return false;
 		
 		$files = $this->db()->select($this->table->attachment)->where('idx',$idx,'IN')->get();
-		for ($i=0, $loop=count($files);$i<$loop;$i++) {
-			@unlink($this->IM->getAttachmentPath().'/'.$files[$i]->path);
-			@unlink($this->IM->getAttachmentPath().'/'.$files[$i]->path.'.view');
-			@unlink($this->IM->getAttachmentPath().'/'.$files[$i]->path.'.thumb');
-			
-			if ($files[$i]->module != '' && $files[$i]->module != 'site') {
-				$mModule = $this->IM->getModule($files[$i]->module);
+		foreach ($files as $file) {
+			if ($file->module != '' && $file->module != 'site') {
+				$mModule = $this->IM->getModule($file->module);
 				
 				if (method_exists($mModule,'syncAttachment') == true) {
-					$mModule->syncAttachment('delete',$files[$i]->idx);
+					$mModule->syncAttachment('delete',$file->idx);
 				}
 			}
 			
-			$this->db()->delete($this->table->attachment)->where('idx',$files[$i]->idx)->execute();
+			$this->db()->delete($this->table->attachment)->where('idx',$file->idx)->execute();
+			
+			if ($file->origin == 0) {
+				if ($file->duplicate == 0) {
+					@unlink($this->IM->getAttachmentPath().'/'.$file->path);
+					@unlink($this->IM->getAttachmentPath().'/'.$file->path.'.view');
+					@unlink($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
+				} else {
+					$duplicates = $this->db()->select($this->table->attachment)->where('origin',$file->idx)->orderBy('idx','asc')->get();
+					for ($i=0, $loop=count($duplicates);$i<$loop;$i++) {
+						if ($i == 0) {
+							$this->db()->update($this->table->attachment,array('origin'=>0,'duplicate'=>count($duplicates) - 1,'size'=>$file->size))->where('idx',$duplicates[$i]->idx)->execute();
+						} else {
+							$this->db()->update($this->table->attachment,array('origin'=>$duplicates[0]->idx))->where('idx',$duplicates[$i]->idx)->execute();
+						}
+					}
+				}
+			} else {
+				$duplicate = $this->db()->select($this->table->attachment)->where('origin',$file->origin)->count();
+				$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$file->idx)->execute();
+			}
 		}
 		
 		return true;
@@ -1106,12 +1124,6 @@ class ModuleAttachment {
 		$oFile = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($oFile == null) return false;
 		
-		if ($oFile != null) {
-			@unlink($this->IM->getAttachmentPath().'/'.$oFile->path);
-			@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.thumb');
-			@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.view');
-		}
-		
 		$insert = array();
 		$insert['name'] = $name;
 		$insert['mime'] = $this->getFileMime($filePath);
@@ -1126,6 +1138,7 @@ class ModuleAttachment {
 			$insert['width'] = $check[0];
 			$insert['height'] = $check[1];
 		}
+		$insert['origin'] = 0;
 		$insert['wysiwyg'] = 'FALSE';
 		$insert['reg_date'] = time();
 
@@ -1136,6 +1149,26 @@ class ModuleAttachment {
 		}
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 		
+		if ($oFile->origin == 0) {
+			if ($oFile->duplicate == 0) {
+				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path);
+				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.view');
+				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.thumb');
+			} else {
+				$duplicates = $this->db()->select($this->table->attachment)->where('origin',$oFile->idx)->orderBy('idx','asc')->get();
+				for ($i=0, $loop=count($duplicates);$i<$loop;$i++) {
+					if ($i == 0) {
+						$this->db()->update($this->table->attachment,array('origin'=>0,'duplicate'=>count($duplicates) - 1,'size'=>$oFile->size))->where('idx',$duplicates[$i]->idx)->execute();
+					} else {
+						$this->db()->update($this->table->attachment,array('origin'=>$duplicates[0]->idx))->where('idx',$duplicates[$i]->idx)->execute();
+					}
+				}
+			}
+		} else {
+			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$oFile->origin)->count();
+			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$oFile->origin)->execute();
+		}
+		
 		return $idx;
 	}
 	
@@ -1143,17 +1176,27 @@ class ModuleAttachment {
 	 * 파일을 복사한다.
 	 *
 	 * @param int $idx 복사할 원본파일번호
-	 * @param string $target 복사를 하는 대상 (없을 경우 원본파일을 업로드한 대상이 유지된다.)
 	 * @return boolean $success
 	 */
-	function fileCopy($idx,$target=null) {
+	function fileCopy($idx) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return false;
 		
-		if ($target == null) {
-			return $this->fileSave($file->name,$this->IM->getAttachmentPath().'/'.$file->path,$file->module,$file->target,$file->status,false);
+		if ($file->origin == 0) {
+			unset($file->idx);
+			$file->size = 0;
+			$file->origin = $idx;
+			$file->target = $target 
+			
+			$cidx = $this->db()->insert($this->table->attachment,(array)$file)->execute();
+			if ($cidx === false) return false;
+			
+			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$idx)->count();
+			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$idx)->execute();
+			
+			return $cidx;
 		} else {
-			return $this->fileReplace($target,$file->name,$this->IM->getAttachmentPath().'/'.$file->path,false);
+			return $this->fileCopy($file->origin);
 		}
 	}
 	

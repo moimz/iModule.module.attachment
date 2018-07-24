@@ -118,6 +118,18 @@
 					"default":0,
 					"comment":"다운로드수"
 				},
+				"origin":{
+					"type":"int",
+					"length":11,
+					"default":0,
+					"comment":"원본파일고유번호"
+				},
+				"duplicate":{
+					"type":"int",
+					"length":11,
+					"default":0,
+					"comment":"사본파일수"
+				},
 				"extra":{
 					"type":"text",
 					"is_null":true,
@@ -127,7 +139,8 @@
 			"indexes":{
 				"idx":"primary_key",
 				"module":"index",
-				"reg_date":"index"
+				"reg_date":"index",
+				"origin":"index"
 			},
 			"auto_increment":"idx",
 			"comment":"파일첨부관리"
