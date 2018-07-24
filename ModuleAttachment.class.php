@@ -1186,7 +1186,9 @@ class ModuleAttachment {
 			unset($file->idx);
 			$file->size = 0;
 			$file->origin = $idx;
-			$file->target = $target 
+			$file->target = $target;
+			$file->reg_date = time();
+			$file->download = 0;
 			
 			$cidx = $this->db()->insert($this->table->attachment,(array)$file)->execute();
 			if ($cidx === false) return false;
