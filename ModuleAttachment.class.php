@@ -39,7 +39,7 @@ class ModuleAttachment {
 	 * 첨부파일 설정변수
 	 */
 	private $_id = null;
-	private $_name = null;
+	private $_name = 'attachments';
 	private $_templet = '#';
 	private $_templet_file = null;
 	private $_module = null;
@@ -330,7 +330,7 @@ class ModuleAttachment {
 	 */
 	function reset() {
 		$this->_id = null;
-		$this->_name = null;
+		$this->_name = 'attachments';
 		$this->_templet = '#';
 		$this->_templet_file = null;
 		$this->_module = null;
@@ -349,6 +349,18 @@ class ModuleAttachment {
 	 */
 	function setId($id) {
 		$this->_id = $id;
+		
+		return $this;
+	}
+	
+	/**
+	 * 업로더 파일필드를 설정한다.
+	 *
+	 * @param string $id
+	 * @return Attachment $this
+	 */
+	function setName($name) {
+		$this->_name = $name;
 		
 		return $this;
 	}
@@ -481,7 +493,7 @@ class ModuleAttachment {
 		$this->_id = $this->_id == null ? uniqid('UPLOADER_') : $this->_id;
 		
 		$header = PHP_EOL.'<!-- ATTACHMENT MODULE -->'.PHP_EOL;
-		$header.= '<div id="'.$this->_id.'" data-role="module" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE"';
+		$header.= '<div id="'.$this->_id.'" data-role="module" data-name="'.$this->_name.'" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE"';
 		if ($this->_module != null) $header.= ' data-uploader-module="'.$this->_module.'"';
 		if ($this->_target != null) $header.= ' data-uploader-target="'.$this->_target.'"';
 		if ($this->_loader != null) $header.= ' data-uploader-loader="'.$this->_loader.'"';

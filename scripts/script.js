@@ -199,7 +199,7 @@ var Attachment = {
 		
 		if ($uploader.parents("form").length > 0) {
 			var $form = $uploader.parents("form").eq(0);
-			var $input = $("<input>").attr("type","hidden").attr("name","attachments[]").attr("data-role","file").attr("data-idx",file.idx);
+			var $input = $("<input>").attr("type","hidden").attr("name",$uploader.attr("data-name")+"[]").attr("data-role","file").attr("data-idx",file.idx);
 			$input.val(file.code);
 			
 			if ($("input[data-role=file][data-idx="+file.idx+"]",$form).length == 0) {
