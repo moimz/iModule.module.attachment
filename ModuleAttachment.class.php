@@ -49,6 +49,7 @@ class ModuleAttachment {
 	private $_buttonText = null;
 	private $_loader = null;
 	private $_disabled = false;
+	private $_deleteMode = 'AUTO';
 	
 	/**
 	 * class 선언
@@ -451,6 +452,18 @@ class ModuleAttachment {
 	}
 	
 	/**
+	 * 파일 삭제모드를 설정한다.
+	 *
+	 * @param string $deleteMode (AUTO : 자동삭제, MANUAL : 수동삭제)
+	 * @return Attachment $this
+	 */
+	function setDeleteMode($deleteMode) {
+		$this->_deleteMode = $deleteMode;
+		
+		return $this;
+	}
+	
+	/**
 	 * 설정된 버튼 텍스트를 반환한다.
 	 *
 	 * @return string $text
@@ -493,7 +506,7 @@ class ModuleAttachment {
 		$this->_id = $this->_id == null ? uniqid('UPLOADER_') : $this->_id;
 		
 		$header = PHP_EOL.'<!-- ATTACHMENT MODULE -->'.PHP_EOL;
-		$header.= '<div id="'.$this->_id.'" data-role="module" data-name="'.$this->_name.'" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE"';
+		$header.= '<div id="'.$this->_id.'" data-role="module" data-name="'.$this->_name.'" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE" data-delete-mode="'.$this->_deleteMode.'"';
 		if ($this->_module != null) $header.= ' data-uploader-module="'.$this->_module.'"';
 		if ($this->_target != null) $header.= ' data-uploader-target="'.$this->_target.'"';
 		if ($this->_loader != null) $header.= ' data-uploader-loader="'.$this->_loader.'"';

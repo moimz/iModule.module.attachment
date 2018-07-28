@@ -370,25 +370,43 @@ var Attachment = {
 		
 		iModule.modal.get(ENV.getProcessUrl("attachment","getModal"),{modal:"delete",code:code},function($modal,$form) {
 			$form.on("submit",function() {
-				$form.send(ENV.getProcessUrl("attachment","delete"),function(result) {
-					if (result.success == true) {
-						$file.remove();
-						
-						if ($uploader.parents("form").length > 0) {
-							var $form = $uploader.parents("form").eq(0);
-							$("input[data-role=file][data-idx="+idx+"]",$form).remove();
+				if ($uploader.attr("data-delete-mode") == "AUTO") {
+					$form.send(ENV.getProcessUrl("attachment","delete"),function(result) {
+						if (result.success == true) {
+							$file.remove();
 							
-							var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
-							if ($wysiwyg.length > 0) {
-								if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
-									$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+							if ($uploader.parents("form").length > 0) {
+								var $form = $uploader.parents("form").eq(0);
+								$("input[data-role=file][data-idx="+idx+"]",$form).remove();
+								
+								var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
+								if ($wysiwyg.length > 0) {
+									if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
+										$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+									}
 								}
 							}
+							
+							$uploader.triggerHandler("delete",[file]);
 						}
+					});
+				} else {
+					$file.remove();
+					
+					if ($uploader.parents("form").length > 0) {
+						var $form = $uploader.parents("form").eq(0);
+						$("input[data-role=file][data-idx="+idx+"]",$form).remove();
 						
-						$uploader.triggerHandler("delete",[file]);
+						var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
+						if ($wysiwyg.length > 0) {
+							if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
+								$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+							}
+						}
 					}
-				});
+					
+					$uploader.triggerHandler("delete",[file]);
+				}
 			});
 		});
 	},
