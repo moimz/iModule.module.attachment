@@ -39,6 +39,10 @@ div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-
 
 div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div > button[data-action=delete] {display:block;}
 div[data-module=attachment][data-templet=default][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div:hover > button[data-action=insert] {display:block;}
+div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file][data-status=PUBLISHED] > div > button[data-action=delete] {display:block;}
+div[data-module=attachment][data-templet=default][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=PUBLISHED] > div:hover > button[data-action=insert] {display:block;}
+div[data-module=attachment][data-templet=default] ul[data-role=files] > li[data-role=file][data-status=DRAFT] > div > button[data-action=delete] {display:block;}
+div[data-module=attachment][data-templet=default][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=DRAFT] > div:hover > button[data-action=insert] {display:block;}
 
 @media (max-width:767px) {
 	div[data-module=attachment][data-templet=default] div.button > span {display:none;}
