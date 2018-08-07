@@ -49,6 +49,7 @@ class ModuleAttachment {
 	private $_buttonText = null;
 	private $_loader = null;
 	private $_disabled = false;
+	private $_accept = '*';
 	private $_deleteMode = 'AUTO';
 	
 	/**
@@ -340,6 +341,8 @@ class ModuleAttachment {
 		$this->_buttonText = null;
 		$this->_loader = null;
 		$this->_disabled = false;
+		$this->_accept = '*';
+		$this->_deleteMode = 'AUTO';
 	}
 	
 	/**
@@ -464,6 +467,19 @@ class ModuleAttachment {
 	}
 	
 	/**
+	 * 첨부파일의 형식을 제한한다.
+	 * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#Limiting_accepted_file_types
+	 *
+	 * @param string $accept (기본값 : *, 예 : image/*, image/png, .doc 등)
+	 * @return Attachment $this
+	 */
+	function setAccept($accept) {
+		$this->_accept = $accept;
+		
+		return $this;
+	}
+	
+	/**
 	 * 설정된 버튼 텍스트를 반환한다.
 	 *
 	 * @return string $text
@@ -512,7 +528,7 @@ class ModuleAttachment {
 		if ($this->_loader != null) $header.= ' data-uploader-loader="'.$this->_loader.'"';
 		$header.= ' data-uploader-wysiwyg="'.($this->_wysiwyg == true ? 'TRUE' : 'FALSE').'"';
 		$header.= '>'.PHP_EOL;
-		$header.= '<div style="display:none;"><input type="file" multiple></div>'.PHP_EOL;
+		$header.= '<div style="display:none;"><input type="file" accept="'.$this->_accept.'" multiple></div>'.PHP_EOL;
 		$footer = PHP_EOL.'<script>$(document).ready(function() { Attachment.init("'.$this->_id.'"); });</script>'.PHP_EOL;
 		$footer.= '</div>';
 		$footer.= '<!--// ATTACHMENT MODULE -->'.PHP_EOL;
@@ -1201,6 +1217,7 @@ class ModuleAttachment {
 			$file->origin = $idx;
 			$file->reg_date = time();
 			$file->download = 0;
+			$file->status = 'DRAFT';
 			
 			$cidx = $this->db()->insert($this->table->attachment,(array)$file)->execute();
 			if ($cidx === false) return false;
