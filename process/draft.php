@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 4. 1.
+ * @modified 2018. 8. 7.
  */
 if (defined('__IM__') == false) exit;
 
@@ -39,13 +39,17 @@ for ($i=0, $loop=count($files);$i<$loop;$i++) {
 	$insert['size'] = $size;
 	$insert['reg_date'] = time();
 	
+	$extension = $this->getFileExtension($name);
+	
 	$idx = $this->db()->insert($this->table->attachment,$insert)->execute();
 	$files[$i]->idx = $idx;
+	$files[$i]->icon = $this->getFileIcon($type,$extension);
 	$files[$i]->code = Encoder($idx);
 	$files[$i]->status = 'WAIT';
 	$files[$i]->mime = $mime;
 	$files[$i]->type = $type;
-	$files[$i]->extension = $this->getFileExtension($name);
+	$files[$i]->extension = $extension;
+	$files[$i]->download = $this->getAttachmentUrl($idx,'download');
 	$files[$i]->uploaded = 0;
 }
 
