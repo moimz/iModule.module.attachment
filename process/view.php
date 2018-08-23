@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 4. 1.
+ * @modified 2018. 8. 23.
  */
 if (defined('__IM__') == false) exit;
 
@@ -19,9 +19,7 @@ if ($file == null) {
 	header("HTTP/1.1 404 Not Found");
 	exit;
 } else {
-	if (in_array($file->type,array('image','video')) == true && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-		header('Content-Type: '.$file->mime);
-		
+	if ($file->type == 'image' && is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
 		if ($file->width > 1000) {
 			if (is_file($this->IM->getAttachmentPath().'/'.$file->path.'.view') == true) {
 				if ($file->type == 'image') header('Content-Type: '.$file->mime);
@@ -31,7 +29,7 @@ if ($file == null) {
 				session_write_close();
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
-			} elseif ($file->type == 'image' && is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
+			} else {
 				if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.view',1000,0,false) == false) {
 					header("HTTP/1.1 404 Not Found");
 					exit;
@@ -42,13 +40,9 @@ if ($file == null) {
 				session_write_close();
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
-			} else {
-				header("HTTP/1.1 404 Not Found");
-				exit;
 			}
 		} else {
 			header('Content-Type: '.$file->size);
-			
 			session_write_close();
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);
 		}
