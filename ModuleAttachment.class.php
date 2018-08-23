@@ -53,6 +53,13 @@ class ModuleAttachment {
 	private $_deleteMode = 'AUTO';
 	
 	/**
+	 * DB접근을 줄이기 위해 DB에서 불러온 데이터를 저장할 변수를 정의한다.
+	 *
+	 * @private object $files 파일정보
+	 */
+	private $files = array();
+	
+	/**
 	 * class 선언
 	 *
 	 * @param iModule $IM iModule 코어클래스
@@ -980,6 +987,8 @@ class ModuleAttachment {
 	 * @return object $fileInfo 파일정보
 	 */
 	function getFileInfo($idx,$is_realpath=false) {
+		if (isset($this->files[$idx]) == true) return $this->files[$idx];
+		
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return null;
 		
@@ -1005,7 +1014,9 @@ class ModuleAttachment {
 		$fileInfo->origin = $file->origin;
 		$fileInfo->duplicate = $file->duplicate > 0 ? $this->db()->select($this->table->attachment,'idx')->where('origin',$idx)->get('idx') : array();
 		
-		return $fileInfo;
+		$this->files[$idx] = $fileInfo;
+		
+		return $this->files[$idx];
 	}
 	
 	function getTotalFileSize($files) {
