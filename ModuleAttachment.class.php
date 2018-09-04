@@ -51,6 +51,7 @@ class ModuleAttachment {
 	private $_disabled = false;
 	private $_accept = '*';
 	private $_deleteMode = 'AUTO';
+	private $_currentPath = null;
 	
 	/**
 	 * DB접근을 줄이기 위해 DB에서 불러온 데이터를 저장할 변수를 정의한다.
@@ -594,13 +595,25 @@ class ModuleAttachment {
 	}
 	
 	/**
+	 * 첨부파일폴더를 지정한다.
+	 *
+	 * @param string $path
+	 * @return ModuleAttachment $this
+	 */
+	function setCurrentPath($path=null) {
+		$this->_currentPath = $path;
+		
+		return $this;
+	}
+	
+	/**
 	 * 하나의 첨부파일폴더에 너무 많은 파일이 저장되는 것을 방지하기 위해 매달 새로운 폴더를 생성하고 해당 경로를 반환한다.
 	 *
 	 * @param boolean $isFullPath __IM_PATH__ 를 포함한 전체경로를 반환할 지 여부(기본값 : false)
 	 * @return string $path
 	 */
 	function getCurrentPath($isFullPath=false) {
-		$folder = date('Ym');
+		$folder = $this->_currentPath ? $this->_currentPath : date('Ym');
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
 			mkdir($this->IM->getAttachmentPath().'/'.$folder);
 			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
@@ -1164,6 +1177,9 @@ class ModuleAttachment {
 		$oFile = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($oFile == null) return false;
 		
+		$temp = explode('/',$oFile->path);
+		$this->setCurrentPath($temp[0]);
+		
 		$insert = array();
 		$insert['name'] = $name;
 		$insert['mime'] = $this->getFileMime($filePath);
@@ -1208,6 +1224,8 @@ class ModuleAttachment {
 			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$oFile->origin)->count();
 			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$oFile->origin)->execute();
 		}
+		
+		$this->setCurrentPath();
 		
 		return $idx;
 	}
@@ -1348,14 +1366,16 @@ class ModuleAttachment {
 	 * @param int $idx 파일고유번호
 	 * @param string $module 파일을 출판한 모듈명(없을 경우 파일업로드시 기록된 모듈명을 유지한다.)
 	 * @param string $target 파일을 출판한 대상(없을 경우 파일업로드시 기록된 대상을 유지한다.)
+	 * @param string $name 파일명(없을 경우 파일업로드시 기록된 대상을 유지한다.)
 	 * @return boolean $success
 	 */
-	function filePublish($idx,$module=null,$target=null) {
+	function filePublish($idx,$module=null,$target=null,$name=null) {
 		if (!$idx) return false;
 		
 		$insert = array('status'=>'PUBLISHED');
 		if ($module != null) $insert['module'] = $module;
 		if ($target != null) $insert['target'] = $target;
+		if ($name != null) $insert['name'] = $name;
 		
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 		return true;
