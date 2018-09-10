@@ -1372,6 +1372,8 @@ class ModuleAttachment {
 	function filePublish($idx,$module=null,$target=null,$name=null) {
 		if (!$idx) return false;
 		
+		if (isset($this->files[$idx]) == true) unset($this->files[$idx]);
+		
 		$insert = array('status'=>'PUBLISHED');
 		if ($module != null) $insert['module'] = $module;
 		if ($target != null) $insert['target'] = $target;
