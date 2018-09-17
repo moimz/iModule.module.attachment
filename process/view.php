@@ -1,6 +1,6 @@
 <?php
 /**
- * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
  *
  * 첨부파일이 웹페이지상에서 embed 될 수 있는 경우, 브라우져상에서 파일을 출력하고, 그렇지 않은 경우 다운로드한다.
  * 

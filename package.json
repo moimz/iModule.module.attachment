@@ -12,16 +12,14 @@
 		"name":"Arzz",
 		"email":"arzz@arzz.com"
 	},
-	"homepage":"https://www.imodule.kr",
-	"versionChecker":"http://www.moimz.com/ko/api/moimz/getLatest",
+	"homepage":"https://www.imodules.io",
+	"versionChecker":"https://api.moimz.com/download/latest",
 	"dependencies":{
 		"core":"3.0.0"
 	},
 	"language":"ko",
 	"admin":true,
-	"context":false,
 	"global":true,
-	"article":false,
 	"configs":{
 		"templet":{
 			"type":"templet",
@@ -143,7 +141,7 @@
 				"origin":"index"
 			},
 			"auto_increment":"idx",
-			"comment":"파일첨부관리"
+			"comment":"첨부파일 파일메타정보 테이블"
 		}
 	}
 }

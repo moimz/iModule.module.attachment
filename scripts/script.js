@@ -1,5 +1,5 @@
 /**
- * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
  *
  * 아이모듈 코어 및 모든 모듈에서 첨부파일과 관련된 모든 기능을 제어한다.
  * 

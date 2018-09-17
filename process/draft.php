@@ -1,6 +1,6 @@
 <?php
 /**
- * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodule.kr)
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
  *
  * 업로드예정인 파일을 DRAFT 상태로 DB에 기록한다.
  * 
