@@ -565,6 +565,16 @@ class ModuleAttachment {
 	}
 	
 	/**
+	 * 현재 객체를 복사한다.
+	 *
+	 * @return ModuleAttachment $this
+	 */
+	function copy() {
+		$copy = unserialize(serialize($this));
+		return $copy;
+	}
+	
+	/**
 	 * 업로더를 출력한다.
 	 */
 	function doLayout() {
