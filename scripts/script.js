@@ -376,13 +376,13 @@ var Attachment = {
 							$file.remove();
 							
 							if ($uploader.parents("form").length > 0) {
-								var $form = $uploader.parents("form").eq(0);
-								$("input[data-role=file][data-idx="+idx+"]",$form).remove();
+								var $parent = $uploader.parents("form").eq(0);
+								$("input[data-role=file][data-idx="+idx+"]",$parent).remove();
 								
-								var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
+								var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$parent);
 								if ($wysiwyg.length > 0) {
 									if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
-										$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+										$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]"));
 									}
 								}
 							}
@@ -394,19 +394,21 @@ var Attachment = {
 					$file.remove();
 					
 					if ($uploader.parents("form").length > 0) {
-						var $form = $uploader.parents("form").eq(0);
-						$("input[data-role=file][data-idx="+idx+"]",$form).remove();
+						var $parent = $uploader.parents("form").eq(0);
+						$("input[data-role=file][data-idx="+idx+"]",$parent).remove();
 						
-						var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
+						var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$parent);
 						if ($wysiwyg.length > 0) {
 							if ($("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")).length > 0) {
-								$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]",$wysiwyg.froalaEditor("html.get")));
+								$wysiwyg.froalaEditor("image.remove",$("*[data-idx="+idx+"]"));
 							}
 						}
 					}
 					
 					$uploader.triggerHandler("delete",[file]);
 				}
+				
+				return false;
 			});
 		});
 	},

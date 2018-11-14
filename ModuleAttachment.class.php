@@ -620,10 +620,11 @@ class ModuleAttachment {
 	 * 하나의 첨부파일폴더에 너무 많은 파일이 저장되는 것을 방지하기 위해 매달 새로운 폴더를 생성하고 해당 경로를 반환한다.
 	 *
 	 * @param boolean $isFullPath __IM_PATH__ 를 포함한 전체경로를 반환할 지 여부(기본값 : false)
+	 * @param int $reg_date 폴더를 생성할 기준시각
 	 * @return string $path
 	 */
-	function getCurrentPath($isFullPath=false) {
-		$folder = $this->_currentPath ? $this->_currentPath : date('Ym');
+	function getCurrentPath($isFullPath=false,$reg_date=null) {
+		$folder = $this->_currentPath ? $this->_currentPath : date('Ym',$reg_date == null ? time() : $reg_date);
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
 			mkdir($this->IM->getAttachmentPath().'/'.$folder);
 			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
@@ -1141,7 +1142,9 @@ class ModuleAttachment {
 	 * @param boolean $is_delete 저장할 파일을 첨부파일모듈 폴더구조에 맞게 이동한 뒤, 이동되기전 파일을 삭제할 지 여부(기본값 : true)
 	 * @return boolean $success
 	 */
-	function fileSave($name,$filePath,$module='',$target='',$status='DRAFT',$isDelete=true) {
+	function fileSave($name,$filePath,$module='',$target='',$status='DRAFT',$isDelete=true,$reg_date=null) {
+		$reg_date = $reg_date == null ? time() : $reg_date;
+		
 		$insert = array();
 		$insert['module'] = $module;
 		$insert['target'] = $target;
@@ -1150,7 +1153,7 @@ class ModuleAttachment {
 		$insert['size'] = filesize($filePath);
 		$insert['type'] = $this->getFileType($insert['mime']);
 		$hash = md5_file($filePath);
-		$insert['path'] = $this->getCurrentPath().'/'.$hash.'.'.base_convert(microtime(true)*10000,10,32).'.'.$this->getFileExtension($name,$filePath);
+		$insert['path'] = $this->getCurrentPath(false,$reg_date).'/'.$hash.'.'.base_convert(microtime(true)*10000,10,32).'.'.$this->getFileExtension($name,$filePath);
 		$insert['width'] = 0;
 		$insert['height'] = 0;
 		if ($insert['type'] == 'image') {
@@ -1159,7 +1162,7 @@ class ModuleAttachment {
 			$insert['height'] = $check[1];
 		}
 		$insert['wysiwyg'] = 'FALSE';
-		$insert['reg_date'] = time();
+		$insert['reg_date'] = $reg_date;
 		$insert['status'] = $status;
 
 		if ($isDelete == true) {
