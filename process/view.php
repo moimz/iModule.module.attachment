@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 8. 23.
+ * @modified 2019. 3. 5.
  */
 if (defined('__IM__') == false) exit;
 
@@ -20,7 +20,7 @@ if ($file == null) {
 	exit;
 } else {
 	if ($file->type == 'image' && is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
-		if ($file->width > 1000) {
+		if ($file->width > 1400) {
 			if (is_file($this->IM->getAttachmentPath().'/'.$file->path.'.view') == true) {
 				if ($file->type == 'image') header('Content-Type: '.$file->mime);
 				else header('Content-Type: image/jpeg');
@@ -30,7 +30,7 @@ if ($file == null) {
 				readfile($this->IM->getAttachmentPath().'/'.$file->path.'.view');
 				exit;
 			} else {
-				if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.view',1000,0,false) == false) {
+				if ($this->createThumbnail($this->IM->getAttachmentPath().'/'.$file->path,$this->IM->getAttachmentPath().'/'.$file->path.'.view',1400,0,false) == false) {
 					header("HTTP/1.1 404 Not Found");
 					exit;
 				}
