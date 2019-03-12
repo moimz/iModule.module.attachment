@@ -1011,7 +1011,7 @@ class ModuleAttachment {
 	 * @return object $fileInfo 파일정보
 	 */
 	function getFileInfo($idx,$is_realpath=false) {
-		if (isset($this->files[$idx]) == true) return $this->files[$idx];
+		if (isset($this->files[$idx]) == true && $this->files[$idx]->is_realpath == $is_realpath) return $this->files[$idx];
 		
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return null;
@@ -1037,6 +1037,7 @@ class ModuleAttachment {
 		$fileInfo->status = $file->status;
 		$fileInfo->origin = $file->origin;
 		$fileInfo->duplicate = $file->duplicate > 0 ? $this->db()->select($this->table->attachment,'idx')->where('origin',$idx)->get('idx') : array();
+		$fileInfo->is_realpath = $is_realpath;
 		
 		$this->files[$idx] = $fileInfo;
 		
