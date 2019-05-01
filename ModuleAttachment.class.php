@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 4. 1.
+ * @modified 2019. 5. 2.
  */
 class ModuleAttachment {
 	/**
@@ -634,6 +634,12 @@ class ModuleAttachment {
 		return $folder;
 	}
 	
+	/**
+	 * 첨부파일 임시폴더 상대경로를 가져온다.
+	 *
+	 * @param boolean $isFullPath 전체경로포함여부
+	 * @return string $path
+	 */
 	function getTempDir($isFullPath=false) {
 		$folder = 'temp';
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
@@ -645,6 +651,12 @@ class ModuleAttachment {
 		return $folder;
 	}
 	
+	/**
+	 * 첨부파일 임시폴더 경로를 가져온다.
+	 *
+	 * @param boolean $isFullPath 전체경로포함여부
+	 * @return string $path
+	 */
 	function getTempPath($isFullPath=false) {
 		$folder = 'temp';
 		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
