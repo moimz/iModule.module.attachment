@@ -1325,9 +1325,9 @@ class ModuleAttachment {
 				header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 				header("Cache-Control: private",false);
 				if (preg_match('/Safari/',$_SERVER['HTTP_USER_AGENT']) == true) {
-					header('Content-Disposition: attachment; filename='.$file->name);
+					header('Content-Disposition: attachment; filename="'.$file->name.'"');
 				} else {
-					header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($file->name));
+					header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"; filename*=UTF-8\'\''.rawurlencode($file->name));
 				}
 				header("Content-Transfer-Encoding: binary");
 				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
@@ -1361,9 +1361,9 @@ class ModuleAttachment {
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
 			header("Cache-Control: private",false);
 			if (preg_match('/Safari/',$_SERVER['HTTP_USER_AGENT']) == true) {
-				header('Content-Disposition: attachment; filename='.$filename);
+				header('Content-Disposition: attachment; filename="'.$filename.'"');
 			} else {
-				header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode($filename));
+				header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"; filename*=UTF-8\'\''.rawurlencode($filename));
 			}
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
