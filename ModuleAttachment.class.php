@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2019. 5. 2.
+ * @modified 2019. 10. 24.
  */
 class ModuleAttachment {
 	/**
@@ -1327,7 +1327,7 @@ class ModuleAttachment {
 				if (preg_match('/Safari/',$_SERVER['HTTP_USER_AGENT']) == true) {
 					header('Content-Disposition: attachment; filename="'.$file->name.'"');
 				} else {
-					header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"; filename*=UTF-8\'\''.rawurlencode($file->name));
+					header('Content-Disposition: attachment; filename="'.rawurlencode($file->name).'"; filename*=UTF-8\'\''.rawurlencode($file->name));
 				}
 				header("Content-Transfer-Encoding: binary");
 				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
