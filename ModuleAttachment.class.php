@@ -763,7 +763,7 @@ class ModuleAttachment {
 		}
 		
 		if ($isFullUrl == true) {
-			$url = isset($_SERVER['HTTPS']) == true ? 'https://' : 'http://';
+			$url = IsHttps() == true ? 'https://' : 'http://';
 			$url.= $_SERVER['HTTP_HOST'].__IM_DIR__;
 		} else {
 			$url = __IM_DIR__;
