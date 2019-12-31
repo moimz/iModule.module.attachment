@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2019. 10. 24.
+ * @modified 2019. 12. 31.
  */
 class ModuleAttachment {
 	/**
@@ -1298,20 +1298,25 @@ class ModuleAttachment {
 		/**
 		 * 파일을 업로드한 모듈을 호출하여, 파일 다운로드권한을 확인한다.
 		 */
-		$downloadable = true;
 		if ($file->module != '' && $file->module != 'site') {
 			$mModule = $this->IM->getModule($file->module);
 			
 			if (method_exists($mModule,'syncAttachment') == true) {
-				$downloadable = $mModule->syncAttachment('download',$idx) !== false;
+				$downloadable = $mModule->syncAttachment('download',$idx);
+				if ($downloadable !== null && $downloadable !== true) {
+					if ($downloadable === false) {
+						$this->printError($this->IM->getModule('member')->isLogged() == true ? 'FILE_ACCESS_DENIED' : 'REQUIRED_LOGIN',$this->getAttachmentUrl($idx,'download'));
+						exit;
+					} else {
+						$this->printError($mModule->getErrorText($downloadable,$this->getAttachmentUrl($idx,'download'),true));
+						exit;
+					}
+				}
 			}
 		}
 		
 		if ($file == null) {
 			$this->printError('FILE_NOT_FOUND');
-			exit;
-		} elseif ($downloadable === false) {
-			$this->printError('FILE_ACCESS_DENIED',$this->getAttachmentUrl($idx,'download'));
 			exit;
 		} else {
 			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->IM->getAttachmentPath().'/'.$file->path;
@@ -1416,17 +1421,21 @@ class ModuleAttachment {
 	 * @param string $path 파일경로 또는 파일명
 	 */
 	function printError($code,$path=null) {
-		$error = new stdClass();
-		$error->message = $this->getErrorText($code);
-		$error->description = $path;
-		$error->type = 'back';
-		
-		if ($code == 'FILE_NOT_FOUND') {
-			header("HTTP/1.1 404 Not Found");
-		}
-		
-		if ($code == 'FILE_ACCESS_DENIED') {
-			header("HTTP/1.1 403 FORBIDDEN");
+		if (is_object($code) == true) {
+			$error = $code;
+		} else {
+			$error = new stdClass();
+			$error->message = $this->getErrorText($code);
+			$error->description = $path;
+			$error->type = 'back';
+			
+			if ($code == 'FILE_NOT_FOUND') {
+				header("HTTP/1.1 404 Not Found");
+			}
+			
+			if ($code == 'FILE_ACCESS_DENIED') {
+				header("HTTP/1.1 403 FORBIDDEN");
+			}
 		}
 		
 		$this->IM->printError($error);
