@@ -1305,10 +1305,10 @@ class ModuleAttachment {
 				$downloadable = $mModule->syncAttachment('download',$idx);
 				if ($downloadable !== null && $downloadable !== true) {
 					if ($downloadable === false) {
-						$this->printError($this->IM->getModule('member')->isLogged() == true ? 'FILE_ACCESS_DENIED' : 'REQUIRED_LOGIN',$this->getAttachmentUrl($idx,'download'));
+						$this->IM->printError($this->IM->getModule('member')->isLogged() == true ? 'FILE_ACCESS_DENIED' : 'REQUIRED_LOGIN',$this->getAttachmentUrl($idx,'download'));
 						exit;
 					} else {
-						$this->printError($mModule->getErrorText($downloadable,$this->getAttachmentUrl($idx,'download'),true));
+						$this->IM->printError($mModule->getErrorText($downloadable,$this->getAttachmentUrl($idx,'download'),true));
 						exit;
 					}
 				}
@@ -1421,21 +1421,17 @@ class ModuleAttachment {
 	 * @param string $path 파일경로 또는 파일명
 	 */
 	function printError($code,$path=null) {
-		if (is_object($code) == true) {
-			$error = $code;
-		} else {
-			$error = new stdClass();
-			$error->message = $this->getErrorText($code);
-			$error->description = $path;
-			$error->type = 'back';
-			
-			if ($code == 'FILE_NOT_FOUND') {
-				header("HTTP/1.1 404 Not Found");
-			}
-			
-			if ($code == 'FILE_ACCESS_DENIED') {
-				header("HTTP/1.1 403 FORBIDDEN");
-			}
+		$error = new stdClass();
+		$error->message = $this->getErrorText($code);
+		$error->description = $path;
+		$error->type = 'back';
+		
+		if ($code == 'FILE_NOT_FOUND') {
+			header("HTTP/1.1 404 Not Found");
+		}
+		
+		if ($code == 'FILE_ACCESS_DENIED') {
+			header("HTTP/1.1 403 FORBIDDEN");
 		}
 		
 		$this->IM->printError($error);
