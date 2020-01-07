@@ -7,7 +7,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 3. 24.
+ * @modified 2020. 1. 7.
  */
 var Attachment = {
 	/**
@@ -212,24 +212,24 @@ var Attachment = {
 		if ($uploader.attr("data-uploader-wysiwyg") == "TRUE") {
 			var $form = $uploader.parents("form").eq(0);
 			var $wysiwyg = $("*[data-wysiwyg=TRUE][data-name="+$uploader.attr("data-uploader-target")+"]",$form);
-			if ($wysiwyg.length == 0) return;
-			
-			if (oFile && oFile.wysiwyg == true) {
-				var reader = new FileReader();
-				reader.onload = function (e) {
-					var result = e.target.result;
-					if (file.type == "image") {
-						$wysiwyg.froalaEditor("html.insert",'<p><img data-idx="'+file.idx+'" class="fr-uploading" src="'+result+'"></p>');
-					} else {
-						$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
+			if ($wysiwyg.length > 0) {
+				if (oFile && oFile.wysiwyg == true) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						var result = e.target.result;
+						if (file.type == "image") {
+							$wysiwyg.froalaEditor("html.insert",'<p><img data-idx="'+file.idx+'" class="fr-uploading" src="'+result+'"></p>');
+						} else {
+							$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
+						}
+					};
+					reader.readAsDataURL(oFile);
+				}
+				
+				if (file.status == "COMPLETE") {
+					if (file.type == "image" && $("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el).length > 0) {
+						$wysiwyg.froalaEditor("image.insert",file.path,false,{idx:file.idx},$("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el),{success:true,file:file});
 					}
-				};
-				reader.readAsDataURL(oFile);
-			}
-			
-			if (file.status == "COMPLETE") {
-				if (file.type == "image" && $("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el).length > 0) {
-					$wysiwyg.froalaEditor("image.insert",file.path,false,{idx:file.idx},$("img[data-idx="+file.idx+"].fr-uploading",$wysiwyg.data("froala.editor").$el),{success:true,file:file});
 				}
 			}
 		}
