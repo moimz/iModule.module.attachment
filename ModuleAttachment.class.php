@@ -354,6 +354,15 @@ class ModuleAttachment {
 	}
 	
 	/**
+	 * 업로더 고유값을 가져온다.
+	 *
+	 * @return string $id
+	 */
+	function getId() {
+		return $this->_id;
+	}
+	
+	/**
 	 * 업로더 고유값을 설정한다.
 	 *
 	 * @param string $id

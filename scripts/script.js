@@ -45,6 +45,8 @@ var Attachment = {
 				Attachment.load($uploader.attr("id"));
 			});
 		}
+		
+		$uploader.triggerHandler("init");
 	},
 	/**
 	 * 파일을 불러온다.
@@ -68,6 +70,8 @@ var Attachment = {
 					file.status = "COMPLETE";
 					Attachment.print(id,file);
 				}
+				
+				$uploader.triggerHandler("load");
 			}
 		});
 	},
@@ -328,8 +332,9 @@ var Attachment = {
 			}
 		});
 	},
-	complete:function() {
-		
+	complete:function(id) {
+		var $uploader = $("#"+id);
+		$uploader.triggerHandler("complete");
 	},
 	/**
 	 * 파일을 위지윅에디터에 삽입한다.
