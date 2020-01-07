@@ -1,6 +1,6 @@
 {
 	"title":{
-		"ko":"첨부파일 Drag&Drop 템플릿"
+		"ko":"첨부파일모듈 드래그&드롭 템플릿"
 	},
 	"version":"1.0.0",
 	"author":{
@@ -11,5 +11,8 @@
 	"language":"ko",
 	"styles":[
 		"/styles/style.css"
+	],
+	"scripts":[
+		"/scripts/script.js"
 	]
 }

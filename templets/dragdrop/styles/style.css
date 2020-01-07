@@ -1,81 +1,144 @@
-.ModuleAttachmentDragDrop .dropzone {border:2px dashed #ccc; position:relative; min-height:110px;}
-.ModuleAttachmentDragDrop .dropzone .helpBlock {position:absolute; top:0px; left:0px; background:#fff; width:100%; height:100%; background:#fff; display:none; z-index:1000; cursor:pointer;}
-.ModuleAttachmentDragDrop .dropzone .helpBlock > div {display:table; width:100%; height:100%;}
-.ModuleAttachmentDragDrop .dropzone .helpBlock > div > p {display:none; width:100%; height:100%; vertical-align:middle; background:#fff; font-size:15px; text-align:center; color:#666;}
-.ModuleAttachmentDragDrop .dropzone[data-status=ready] .helpBlock {display:block;}
-.ModuleAttachmentDragDrop .dropzone[data-status=ready] .helpBlock > div > p.ready {display:table-cell;}
-.ModuleAttachmentDragDrop .dropzone[data-status=drag] .helpBlock {display:block;}
-.ModuleAttachmentDragDrop .dropzone[data-status=drag] .helpBlock > div > p.drag {display:table-cell;}
-.ModuleAttachmentDragDrop .dropzone[data-status=dragenter] {border:2px solid #d1141c;}
-.ModuleAttachmentDragDrop .dropzone[data-status=dragenter] .helpBlock {display:block;}
-.ModuleAttachmentDragDrop .dropzone[data-status=dragenter] .helpBlock > div > p.drag {display:table-cell;}
+/**
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 첨부파일모듈 드래그&드롭 템플릿
+ * 
+ * @file /modules/attachment/templets/dragdrop/styles/style.css
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @version 3.0.0
+ * @modified 2020. 1. 7.
+ */
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop] {border:2px dashed #ccc; position:relative; min-height:185px;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop] button[data-action=select] {position:absolute; top:0px; left:0px; background:background:rgba(255,255,255,0.8); width:100%; height:100%; background:#fff; display:none; z-index:1000; cursor:pointer; border:0;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop] button[data-action=select] > div {display:table; width:100%; height:100%;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop] button[data-action=select] > div > p {display:none; width:100%; height:100%; vertical-align:middle; background:#fff; font-size:15px; text-align:center; color:#666;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-status=empty] button[data-action=select] {display:block;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-status=empty] button[data-action=select] > div > p.ready {display:table-cell;}
 
-.ModuleAttachmentDragDrop .fileList {}
-.ModuleAttachmentDragDrop .fileList:empty {display:none;}
-.ModuleAttachmentDragDrop .fileList .item {width:84px; max-height:110px; margin:5px; padding-top:5px; display:inline-block; vertical-align:top; position:relative;}
-.ModuleAttachmentDragDrop .fileList .item .preview {width:64px; height:64px; margin:0px auto; position:relative;}
-.ModuleAttachmentDragDrop .fileList .item .preview .waiting {position:absolute; top:0px; left:0px; width:64px; height:64px; background:url(../images/loading.gif) no-repeat 50% 50%; border:0px; z-index:5;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon {width:64px; height:64px; position:absolute; top:0px; left:0px; z-index:1;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div {width:64px; height:64px; background-image:url(../images/file.png); background-size:64px 64px; background-repeat:no-repeat; background-position:50% 50%;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div span {display:none;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.image {margin:0px 2px 4px 2px; width:60px; height:60px; box-shadow:1px 1px 2px rgba(0,0,0,0.3); background-repeat:no-repeat; background-position:50% 50%; background-size:cover; border-radius:2px;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.video {margin:0px 2px 4px 2px; width:60px; height:60px; background-color:#000; background-image:none; position:relative;}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.video span {color:white; font-size:12px; display:block; padding-left:1px; width:23px; height:24px; border:1px solid #fff; border-radius:12px; text-align:center; line-height:24px; position:absolute; top:17px; left:17px; box-shadow:0px 0px 2px rgba(0,0,0,0.3); background:rgba(0,0,0,0.3);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.jpg, div.jpeg {background-image:url(../images/jpg.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.png {background-image:url(../images/jpg.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.pdf {background-image:url(../images/pdf.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.txt {background-image:url(../images/document.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.rft {background-image:url(../images/document.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.doc {background-image:url(../images/docx.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.docx {background-image:url(../images/docx.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.ppt {background-image:url(../images/document.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.pptx {background-image:url(../images/document.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.xlsx {background-image:url(../images/xlsx.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.xls {background-image:url(../images/xlsx.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.zip {background-image:url(../images/zip.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.rar {background-image:url(../images/rar.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.mp4 {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.mpg {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.mpeg {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.avi {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.mkv {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.wmv {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .icon div.m4v {background-image:url(../images/video.png);}
-.ModuleAttachmentDragDrop .fileList .item .preview .progress {position:absolute; left:11px; bottom:8px; z-index:3; width:40px; height:3px; border:1px solid rgba(0,0,0,0.8); border-radius:3px; background:rgba(0,0,0,0.5);}
-.ModuleAttachmentDragDrop .fileList .item .preview .progress div {height:3px; border-radius:3px; background:#fff; width:0%;}
-.ModuleAttachmentDragDrop .fileList .item .filename {font-size:11px; line-height:15px; text-align:center; word-break:break-all;}
-.ModuleAttachmentDragDrop .fileList .item .filesize {font-size:10px; font-family:tahoma; text-align:center; color:#7ba4d5; height:16px; line-height:16px;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-status=drag] button[data-action=select] {display:block;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-status=drag] button[data-action=select] > div > p.drag {display:table-cell;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-drag-status=dragenter] {border:2px solid #d1141c;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-drag-status=dragenter] button[data-action=select] {display:block;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-drag-status=dragenter] button[data-action=select] > div > p.drag {display:table-cell;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-drag-status=dragenter] button[data-action=select] > div > p.ready {display:none;}
+div[data-module=attachment][data-templet=dragdrop] div[data-role=filedrop][data-status=disabled] button[data-action=select] {display:none !important;}
 
-.ModuleAttachmentDragDrop .fileList .item .insert {display:none;}
-.ModuleAttachmentDragDrop .fileList .item .insertText {display:none;}
-.ModuleAttachmentDragDrop .fileList .item .delete {position:absolute; z-index:200; top:-2px; left:10px; background:#fa645d url(../images/delete.png) no-repeat 50% 50%; width:16px; height:16px; background-size:6px 6px; border:1px solid #dc4743; border-radius:9px; cursor:pointer;}
 
-.ModuleAttachmentDragDrop .fileList .item[data-thumbnail=TRUE] .delete {left:3px;}
-.ModuleAttachmentDragDrop .fileList .item[data-thumbnail=TRUE] .insert {width:64px !important; height:64px !important; margin:0px !important;}
 
-.ModuleAttachmentDragDrop .fileList .item[data-status=WAITING] .delete {display:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=WAITING] .preview div {opacity:0.5;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=WAITING] .preview .waiting {opacity:1;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=WAITING] .progress {display:none;}
 
-.ModuleAttachmentDragDrop .fileList .item[data-status=PROCESSING] .delete {display:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=PROCESSING] .preview div {opacity:1;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=PROCESSING] .preview .waiting {opacity:1;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=PROCESSING] .progress {display:none;}
 
-.ModuleAttachmentDragDrop .fileList .item[data-status=UPLOADING] .waiting {display:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=UPLOADING] .delete {display:none;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] {border:0; margin:0; padding:5px 10px; height:185px; box-sizing:border-box; overflow-y:auto;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files]:empty {display:none;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] {list-style:none; display:block; width:100%;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] {display:inline-block; vertical-align:top; padding:10px 0px 0px 10px; height:auto; margin:0px;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div {width:100px; max-height:165px; overflow:hidden; position:relative; z-index:0;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > i.icon {display:block; width:100px; height:100px; box-sizing:border-box; border:1px solid #ddd; margin-bottom:5px; position:relative; z-index:5;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > i.icon > div.preview {width:100%; height:100%; position:absolute; top:0; left:0; background-color:#fff; background-repeat:no-repeat; background-position:50% 50%; background-size:cover;}
 
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .waiting {display:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .progress {display:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insert {display:block; position:absolute; z-index:100; width:50px; height:64px; margin:0px 7px; top:-1px; left:0px; background:rgba(0,0,0,0.5); font-size:20px; color:#eee; text-align:center; line-height:64px; cursor:pointer;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insertText {display:block; position:absolute; z-index:150; width:124px; top:65px; left:-30px; text-align:center;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox {position:relative; background:#e4232c; border:1px solid #fa481d; height:20px; line-height:20px; padding:0 5px; color:#fff; font-size:11px; display:inline-block; vertical-align:middle;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:after, .ModuleAttachmentDragDrop .fileList .MOUSEOVER .insertText div.arrowBox:before {bottom:100%; left:50%; border:solid transparent; content:" "; height:0; width:0; position:absolute; pointer-events:none;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:after {border-color:rgba(228, 35, 44, 0); border-bottom-color:#e4232c; border-width:4px; margin-left:-4px;}
-.ModuleAttachmentDragDrop .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:before {border-color:rgba(250, 72, 29, 0); border-bottom-color:#fa481d; border-width:5px; margin-left:-5px;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > div.name {line-height:20px; text-align:center; font-size:12px; word-break:break-all;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > div.size {height:20px; line-height:20px; text-align:center; font-family:tahoma; font-size:11px; color:#7ba4d5;}
 
-.ModuleAttachmentDragDrop .ButtonTable {table-layout:fixed; width:100%; border-spacing:0px; border-collapse:collapse; margin-top:5px;}
-.ModuleAttachmentDragDrop .ButtonTable .buttonBlock {width:150px;}
-.ModuleAttachmentDragDrop .ButtonTable .infoBlock {width:100%; text-align:right; font-size:11px; color:#666;}
-.ModuleAttachmentDragDrop .ButtonTable .infoBlock .wysiwyg {display:none;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > div.progress {position:absolute; display:none; z-index:10;}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=delete] {width:20px; height:20px; background:#F44336; border:1px solid #E53935; box-sizing:border-box; cursor:pointer; position:absolute; top:0; right:0; color:#fff; cursor:pointer; z-index:10; display:none;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=delete] > i {font-family:moimz; font-style:normal; font-size:12px;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=delete] > i:before {content:"\eb03";}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=delete]:hover {background:#E53935;}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=insert] {width:100px; height:100px; background:rgba(0,0,0,0.7); border:0px; position:absolute; z-index:5; top:0; left:0; font-size:12px; color:#fff; cursor:pointer; display:none;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=insert] > i {display:block; width:100px; height:20px; padding:10px 0px 5px 0px; font-family:moimz; font-style:normal; font-size:14px;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=insert] > i:before {content:"\EB00";}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file] > div > button[data-action=insert]:after {content:"본문삽입";}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=WAIT] > div > i.icon {opacity:0.5;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=WAIT] > div > div.progress {display:block; top:70px; left:0; width:100%; height:30px; background:url(../images/loading.gif) no-repeat 50% 50%;}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=UPLOADING] > div > i.icon {opacity:0.5;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=UPLOADING] > div > div.progress {display:block; left:9px; top:82px; z-index:3; width:80px; height:4px; border:1px solid rgba(0,0,0,0.8); border-radius:3px; background:rgba(0,0,0,0.5);}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=UPLOADING] > div > div.progress > div {height:4px; border-radius:2px; background:#fff; width:50%;}
+
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div > button[data-action=delete] {display:block;}
+div[data-module=attachment][data-templet=dragdrop][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=COMPLETE] > div:hover > button[data-action=insert] {display:block;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=PUBLISHED] > div > button[data-action=delete] {display:block;}
+div[data-module=attachment][data-templet=dragdrop][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=PUBLISHED] > div:hover > button[data-action=insert] {display:block;}
+div[data-module=attachment][data-templet=dragdrop] ul[data-role=files] > li[data-role=file][data-status=DRAFT] > div > button[data-action=delete] {display:block;}
+div[data-module=attachment][data-templet=dragdrop][data-uploader-wysiwyg=TRUE] ul[data-role=files] > li[data-role=file][data-status=DRAFT] > div:hover > button[data-action=insert] {display:block;}
+
+
+
+
+
+
+
+/*
+div[data-module=attachment][data-templet=dragdrop] .fileList {}
+div[data-module=attachment][data-templet=dragdrop] .fileList:empty {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item {width:84px; max-height:110px; margin:5px; padding-top:5px; display:inline-block; vertical-align:top; position:relative;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview {width:64px; height:64px; margin:0px auto; position:relative;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .waiting {position:absolute; top:0px; left:0px; width:64px; height:64px; background:url(../images/loading.gif) no-repeat 50% 50%; border:0px; z-index:5;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon {width:64px; height:64px; position:absolute; top:0px; left:0px; z-index:1;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div {width:64px; height:64px; background-image:url(../images/file.png); background-size:64px 64px; background-repeat:no-repeat; background-position:50% 50%;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div span {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.image {margin:0px 2px 4px 2px; width:60px; height:60px; box-shadow:1px 1px 2px rgba(0,0,0,0.3); background-repeat:no-repeat; background-position:50% 50%; background-size:cover; border-radius:2px;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.video {margin:0px 2px 4px 2px; width:60px; height:60px; background-color:#000; background-image:none; position:relative;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.video span {color:white; font-size:12px; display:block; padding-left:1px; width:23px; height:24px; border:1px solid #fff; border-radius:12px; text-align:center; line-height:24px; position:absolute; top:17px; left:17px; box-shadow:0px 0px 2px rgba(0,0,0,0.3); background:rgba(0,0,0,0.3);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.jpg, div.jpeg {background-image:url(../images/jpg.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.png {background-image:url(../images/jpg.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.pdf {background-image:url(../images/pdf.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.txt {background-image:url(../images/document.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.rft {background-image:url(../images/document.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.doc {background-image:url(../images/docx.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.docx {background-image:url(../images/docx.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.ppt {background-image:url(../images/document.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.pptx {background-image:url(../images/document.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.xlsx {background-image:url(../images/xlsx.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.xls {background-image:url(../images/xlsx.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.zip {background-image:url(../images/zip.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.rar {background-image:url(../images/rar.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.mp4 {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.mpg {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.mpeg {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.avi {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.mkv {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.wmv {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .icon div.m4v {background-image:url(../images/video.png);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .progress {position:absolute; left:11px; bottom:8px; z-index:3; width:40px; height:3px; border:1px solid rgba(0,0,0,0.8); border-radius:3px; background:rgba(0,0,0,0.5);}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .preview .progress div {height:3px; border-radius:3px; background:#fff; width:0%;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .filename {font-size:11px; line-height:15px; text-align:center; word-break:break-all;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .filesize {font-size:10px; font-family:tahoma; text-align:center; color:#7ba4d5; height:16px; line-height:16px;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .insert {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .insertText {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item .delete {position:absolute; z-index:200; top:-2px; left:10px; background:#fa645d url(../images/delete.png) no-repeat 50% 50%; width:16px; height:16px; background-size:6px 6px; border:1px solid #dc4743; border-radius:9px; cursor:pointer;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-thumbnail=TRUE] .delete {left:3px;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-thumbnail=TRUE] .insert {width:64px !important; height:64px !important; margin:0px !important;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=WAITING] .delete {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=WAITING] .preview div {opacity:0.5;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=WAITING] .preview .waiting {opacity:1;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=WAITING] .progress {display:none;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=PROCESSING] .delete {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=PROCESSING] .preview div {opacity:1;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=PROCESSING] .preview .waiting {opacity:1;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=PROCESSING] .progress {display:none;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=UPLOADING] .waiting {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=UPLOADING] .delete {display:none;}
+
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .waiting {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .progress {display:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insert {display:block; position:absolute; z-index:100; width:50px; height:64px; margin:0px 7px; top:-1px; left:0px; background:rgba(0,0,0,0.5); font-size:20px; color:#eee; text-align:center; line-height:64px; cursor:pointer;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insertText {display:block; position:absolute; z-index:150; width:124px; top:65px; left:-30px; text-align:center;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox {position:relative; background:#e4232c; border:1px solid #fa481d; height:20px; line-height:20px; padding:0 5px; color:#fff; font-size:11px; display:inline-block; vertical-align:middle;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:after, div[data-module=attachment][data-templet=dragdrop] .fileList .MOUSEOVER .insertText div.arrowBox:before {bottom:100%; left:50%; border:solid transparent; content:" "; height:0; width:0; position:absolute; pointer-events:none;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:after {border-color:rgba(228, 35, 44, 0); border-bottom-color:#e4232c; border-width:4px; margin-left:-4px;}
+div[data-module=attachment][data-templet=dragdrop] .fileList .item[data-status=COMPLETE] .preview:hover .insertText div.arrowBox:before {border-color:rgba(250, 72, 29, 0); border-bottom-color:#fa481d; border-width:5px; margin-left:-5px;}
+*/
+div[data-module=attachment][data-templet=dragdrop] .ButtonTable {table-layout:fixed; width:100%; border-spacing:0px; border-collapse:collapse; margin-top:5px;}
+div[data-module=attachment][data-templet=dragdrop] .ButtonTable .buttonBlock {width:150px;}
+div[data-module=attachment][data-templet=dragdrop] .ButtonTable .infoBlock {width:100%; text-align:right; font-size:11px; color:#666;}
+div[data-module=attachment][data-templet=dragdrop] .ButtonTable .infoBlock .wysiwyg {display:none;}

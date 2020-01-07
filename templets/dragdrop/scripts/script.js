@@ -1,3 +1,109 @@
+/**
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 첨부파일모듈 드래그&드롭 템플릿
+ * 
+ * @file /modules/attachment/templets/dragdrop/scripts/script.js
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @version 3.0.0
+ * @modified 2020. 1. 7.
+ */
+$(document).ready(function() {
+	var $uploader = $("div[data-module=attachment][data-uploader=TRUE][data-templet=dragdrop]");
+	
+	$uploader.on("add",function(e,files) {
+		if (files.length > 0) {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","disabled");
+		}
+		if (files.length > 0) Attachment.start($(this).attr("id"));
+	});
+	
+	$uploader.on("print",function(e,$file,file) {
+		var $name = $("div.name",$file);
+		
+		$name.html(file.name);
+		if ($name.height() > 40) {
+			var length = file.name.length;
+			while ($name.height() > 40) {
+				$name.html(Attachment.substring(file.name,--length));
+			}
+		}
+	});
+	
+	$uploader.on("progress",function(e,$file,loaded,total) {
+		var $progress = $("div.progress > div",$file);
+		$progress.width((loaded / total * 100) + "%");
+	});
+	
+	$uploader.on("init",function() {
+		if ($("ul[data-role=files] > li",$(this)).length == 0) {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","empty");
+		} else {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","ready");
+		}
+	});
+	
+	$uploader.on("load",function() {
+		if ($("ul[data-role=files] > li",$(this)).length == 0) {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","empty");
+		} else {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","ready");
+		}
+	});
+	
+	$uploader.on("complete",function() {
+		if ($("ul[data-role=files] > li",$(this)).length == 0) {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","empty");
+		} else {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","ready");
+		}
+	});
+	
+	$uploader.on("delete",function() {
+		if ($("ul[data-role=files] > li",$(this)).length == 0) {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","empty");
+		} else {
+			$("div[data-role=filedrop]",$(this)).attr("data-status","ready");
+		}
+	});
+	
+	$("div[data-role=filedrop]",$uploader).each(function() {
+		$(this).on("dragenter",function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
+			if ($(this).attr("data-status") == "disabled") return;
+			$(this).attr("data-drag-status","dragenter");
+		});
+		
+		$(this).on("dragleave",function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
+			if ($(this).attr("data-status") == "disabled") return;
+			$(this).attr("data-drag-status","dragleave");
+		});
+		
+		$(this).on("dragover",function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+		});
+		
+		$(this).on("drop",function(e) {
+			e.preventDefault();
+			if ($(this).attr("data-status") == "disabled") return;
+			
+			var files = [];
+			for (var i=0, loop=e.originalEvent.dataTransfer.files.length;i<loop;i++) {
+				var file = e.originalEvent.dataTransfer.files[i];
+				files.push(file);
+			}
+			Attachment.add($(this).attr("data-id"),files);
+		});
+	});
+});
+/*
 $(document).on("Attachment.add",function(e,id,file) {
 	if ($("#"+id).attr("data-templet") != "dragdrop") return;
 	
@@ -124,34 +230,4 @@ $(document).on("Attachment.reset",function(e,id) {
 	
 	$("#"+id+" div.fileList").empty();
 });
-
-$(document).ready(function() {
-	$(".ModuleAttachmentDragDrop .dropzone").each(function() {
-		$(this).on("dragenter",function(e) {
-			$(this).attr("data-status","dragenter");
-			e.stopPropagation();
-			e.preventDefault();
-		});
-		
-		$(this).on("dragover",function(e) {
-			e.stopPropagation();
-			e.preventDefault();
-		});
-		
-		$(this).on("drop",function(e) {
-			var files = e.originalEvent.dataTransfer.files;
-			e.preventDefault();
-			
-			for (var i=0, loop=files.length;i<loop;i++) {
-				var file = files[i];
-				file.status = "WAITING";
-				Attachment.add($(this).attr("data-id"),file);
-			}
-			Attachment.submit($(this).attr("data-id"));
-		});
-		
-		$(".helpBlock",$(this)).on("click",function() {
-			Attachment.select($(this).parent().attr("data-id"),"file");
-		});
-	});
-});
+*/
