@@ -1,3 +1,14 @@
+/**
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 첨부파일모듈 기본 템플릿
+ * 
+ * @file /modules/attachment/templets/default/styles/style.css
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @version 3.0.0
+ * @modified 2018. 9. 17.
+ */
 div[data-module=attachment][data-templet=default] div.button {}
 div[data-module=attachment][data-templet=default] div.button > button {width:auto; background:#b5b7c0; border:0px; color:#fff; font-size:13px; line-height:40px; font-size:0; font-size:13px; cursor:pointer; padding:0px; text-align:left;}
 div[data-module=attachment][data-templet=default] div.button > button > i {display:inline-block; width:40px; height:40px; line-height:40px; vertical-align:top; text-align:center; font-size:16px; margin-top:0px;}

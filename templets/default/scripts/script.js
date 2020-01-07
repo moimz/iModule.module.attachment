@@ -1,3 +1,14 @@
+/**
+ * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 첨부파일모듈 기본 템플릿
+ * 
+ * @file /modules/attachment/templets/default/scripts/script.js
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @version 3.0.0
+ * @modified 2018. 9. 17.
+ */
 $(document).ready(function() {
 	var $uploader = $("div[data-module=attachment][data-uploader=TRUE][data-templet=default]");
 	

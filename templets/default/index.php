@@ -10,6 +10,7 @@
  * @version 3.0.0
  * @modified 2018. 9. 17.
  */
+if (defined('__IM__') == false) exit;
 ?>
 <div class="button">
 	<button type="button" data-action="select"><i class="mi mi-upload"></i><span><?php echo $me->getButtonText(); ?></span></button>
