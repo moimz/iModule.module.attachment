@@ -3,7 +3,7 @@
  * 이 파일은 iModule 첨부파일모듈의 일부입니다. (https://www.imodules.io)
  *
  * 아이모듈 코어 및 모든 모듈에서 첨부파일과 관련된 모든 기능을 제어한다.
- * 
+ *
  * @file /modules/attachment/ModuleAttachment.class.php
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
@@ -16,7 +16,7 @@ class ModuleAttachment {
 	 */
 	private $IM;
 	private $Module;
-	
+
 	/**
 	 * DB 관련 변수정의
 	 *
@@ -25,16 +25,16 @@ class ModuleAttachment {
 	 */
 	private $DB;
 	private $table;
-	
+
 	/**
 	 * 언어셋을 정의한다.
-	 * 
+	 *
 	 * @private object $lang 현재 사이트주소에서 설정된 언어셋
 	 * @private object $oLang package.json 에 의해 정의된 기본 언어셋
 	 */
 	private $lang = null;
 	private $oLang = null;
-	
+
 	/**
 	 * 첨부파일 설정변수
 	 */
@@ -52,14 +52,14 @@ class ModuleAttachment {
 	private $_accept = '*';
 	private $_deleteMode = 'AUTO';
 	private $_currentPath = null;
-	
+
 	/**
 	 * DB접근을 줄이기 위해 DB에서 불러온 데이터를 저장할 변수를 정의한다.
 	 *
 	 * @private object $files 파일정보
 	 */
 	private $files = array();
-	
+
 	/**
 	 * class 선언
 	 *
@@ -74,17 +74,17 @@ class ModuleAttachment {
 		 */
 		$this->IM = $IM;
 		$this->Module = $Module;
-		
+
 		/**
 		 * 모듈에서 사용하는 DB 테이블 별칭 정의
 		 * @see 모듈폴더의 package.json 의 databases 참고
 		 */
 		$this->table = new stdClass();
 		$this->table->attachment = 'attachment_table';
-		
+
 		$this->IM->addHeadResource('style',$this->getModule()->getDir().'/styles/style.css');
 	}
-	
+
 	/**
 	 * 모듈 코어 클래스를 반환한다.
 	 * 현재 모듈의 각종 설정값이나 모듈의 package.json 설정값을 모듈 코어 클래스를 통해 확인할 수 있다.
@@ -94,7 +94,7 @@ class ModuleAttachment {
 	function getModule() {
 		return $this->Module;
 	}
-	
+
 	/**
 	 * 모듈 설치시 정의된 DB코드를 사용하여 모듈에서 사용할 전용 DB클래스를 반환한다.
 	 *
@@ -104,7 +104,7 @@ class ModuleAttachment {
 		if ($this->DB == null || $this->DB->ping() === false) $this->DB = $this->IM->db($this->getModule()->getInstalled()->database);
 		return $this->DB;
 	}
-	
+
 	/**
 	 * 모듈에서 사용중인 DB테이블 별칭을 이용하여 실제 DB테이블 명을 반환한다.
 	 *
@@ -114,7 +114,7 @@ class ModuleAttachment {
 	function getTable($table) {
 		return empty($this->table->$table) == true ? null : $this->table->$table;
 	}
-	
+
 	/**
 	 * [코어] 사이트 외부에서 현재 모듈의 API를 호출하였을 경우, API 요청을 처리하기 위한 함수로 API 실행결과를 반환한다.
 	 * 소스코드 관리를 편하게 하기 위해 각 요쳥별로 별도의 PHP 파일로 관리한다.
@@ -128,24 +128,24 @@ class ModuleAttachment {
 	 */
 	function getApi($protocol,$api,$idx=null,$params=null) {
 		$data = new stdClass();
-		
+
 		$values = (object)get_defined_vars();
 		$this->IM->fireEvent('beforeGetApi',$this->getModule()->getName(),$api,$values);
-		
+
 		/**
 		 * 모듈의 api 폴더에 $api 에 해당하는 파일이 있을 경우 불러온다.
 		 */
 		if (is_file($this->getModule()->getPath().'/api/'.$api.'.'.$protocol.'.php') == true) {
 			INCLUDE $this->getModule()->getPath().'/api/'.$api.'.'.$protocol.'.php';
 		}
-		
+
 		unset($values);
 		$values = (object)get_defined_vars();
 		$this->IM->fireEvent('afterGetApi',$this->getModule()->getName(),$api,$values,$data);
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * [사이트관리자] 모듈 설정패널을 구성한다.
 	 *
@@ -157,15 +157,15 @@ class ModuleAttachment {
 		 */
 		$IM = $this->IM;
 		$Module = $this->getModule();
-		
+
 		ob_start();
 		INCLUDE $this->getModule()->getPath().'/admin/configs.php';
 		$panel = ob_get_contents();
 		ob_end_clean();
-		
+
 		return $panel;
 	}
-	
+
 	/**
 	 * [사이트관리자] 모듈 관리자패널 구성한다.
 	 *
@@ -177,15 +177,15 @@ class ModuleAttachment {
 		 */
 		$IM = $this->IM;
 		$Module = $this;
-		
+
 		ob_start();
 		INCLUDE $this->getModule()->getPath().'/admin/index.php';
 		$panel = ob_get_contents();
 		ob_end_clean();
-		
+
 		return $panel;
 	}
-	
+
 	/**
 	 * 언어셋파일에 정의된 코드를 이용하여 사이트에 설정된 언어별로 텍스트를 반환한다.
 	 * 코드에 해당하는 문자열이 없을 경우 1차적으로 package.json 에 정의된 기본언어셋의 텍스트를 반환하고, 기본언어셋 텍스트도 없을 경우에는 코드를 그대로 반환한다.
@@ -206,10 +206,10 @@ class ModuleAttachment {
 				$this->oLang = null;
 			}
 		}
-		
+
 		$returnString = null;
 		$temp = explode('/',$code);
-		
+
 		$string = $this->lang;
 		for ($i=0, $loop=count($temp);$i<$loop;$i++) {
 			if (isset($string->{$temp[$i]}) == true) {
@@ -219,7 +219,7 @@ class ModuleAttachment {
 				break;
 			}
 		}
-		
+
 		if ($string != null) {
 			$returnString = $string;
 		} elseif ($this->oLang != null) {
@@ -234,12 +234,12 @@ class ModuleAttachment {
 					}
 				}
 			}
-			
+
 			if ($string != null) $returnString = $string;
 		}
-		
+
 		$this->IM->fireEvent('afterGetText',$this->getModule()->getName(),$code,$returnString);
-		
+
 		/**
 		 * 언어셋 텍스트가 없는경우 iModule 코어에서 불러온다.
 		 */
@@ -247,7 +247,7 @@ class ModuleAttachment {
 		elseif (in_array(reset($temp),array('text','button','action')) == true) return $this->IM->getText($code,$replacement);
 		else return $replacement == null ? $code : $replacement;
 	}
-	
+
 	/**
 	 * 상황에 맞게 에러코드를 반환한다.
 	 *
@@ -259,22 +259,22 @@ class ModuleAttachment {
 	function getErrorText($code,$value=null,$isRawData=false) {
 		$message = $this->getText('error/'.$code,$code);
 		if ($message == $code) return $this->IM->getErrorText($code,$value,null,$isRawData);
-		
+
 		$description = null;
 		switch ($code) {
 			default :
 				if (is_object($value) == false && $value) $description = $value;
 		}
-		
+
 		$error = new stdClass();
 		$error->message = $message;
 		$error->description = $description;
 		$error->type = 'BACK';
-		
+
 		if ($isRawData === true) return $error;
 		else return $this->IM->getErrorText($error);
 	}
-	
+
 	/**
 	 * 템플릿 정보를 가져온다.
 	 *
@@ -284,7 +284,7 @@ class ModuleAttachment {
 	function getTemplet($templet=null) {
 		$templet = $templet == null ? '#' : $templet;
 		$templet_configs = null;
-		
+
 		/**
 		 * 사이트맵 관리를 통해 설정된 페이지 컨텍스트 설정일 경우
 		 */
@@ -292,7 +292,7 @@ class ModuleAttachment {
 			$templet = $templet !== null && isset($templet->templet) == true ? $templet->templet : '#';
 			$templet_configs = $templet !== null && isset($templet->templet_configs) == true ? $templet->templet_configs : null;
 		}
-		
+
 		/**
 		 * 템플릿명이 # 이면 모듈 기본설정에 설정된 템플릿을 사용한다.
 		 */
@@ -300,10 +300,10 @@ class ModuleAttachment {
 			$templet = $this->getModule()->getConfig('templet');
 			$templet_configs = $this->getModule()->getConfig('templet_configs');
 		}
-		
+
 		return $this->getModule()->getTemplet($templet,$templet_configs);
 	}
-	
+
 	/**
 	 * 파일 삭제 모달을 가져온다.
 	 *
@@ -312,29 +312,29 @@ class ModuleAttachment {
 	 */
 	function getDeleteModal($idx) {
 		$title = '파일삭제 확인';
-		
+
 		$file = $this->getFileInfo($idx);
-		
+
 		$content = '<input type="hidden" name="code" value="'.Encoder($idx).'">'.PHP_EOL;
 		$content.= '<div data-role="message">'.$file->name.' 파일을 삭제하시겠습니까?</div>';
-		
-		
+
+
 		$buttons = array();
-		
+
 		$button = new stdClass();
 		$button->type = 'submit';
 		$button->text = '삭제';
 		$button->class = 'danger';
 		$buttons[] = $button;
-		
+
 		$button = new stdClass();
 		$button->type = 'close';
 		$button->text = '취소';
 		$buttons[] = $button;
-		
+
 		return $this->getTemplet()->getModal($title,$content,true,array(),$buttons);
 	}
-	
+
 	/**
 	 * 업로더를 호출한 뒤 업로더관련 변수를 초기화한다.
 	 */
@@ -352,7 +352,7 @@ class ModuleAttachment {
 		$this->_accept = '*';
 		$this->_deleteMode = 'AUTO';
 	}
-	
+
 	/**
 	 * 업로더 고유값을 가져온다.
 	 *
@@ -361,7 +361,7 @@ class ModuleAttachment {
 	function getId() {
 		return $this->_id;
 	}
-	
+
 	/**
 	 * 업로더 고유값을 설정한다.
 	 *
@@ -370,10 +370,10 @@ class ModuleAttachment {
 	 */
 	function setId($id) {
 		$this->_id = $id;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더 파일필드를 설정한다.
 	 *
@@ -382,10 +382,10 @@ class ModuleAttachment {
 	 */
 	function setName($name) {
 		$this->_name = $name;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더 템플릿을 설정한다.
 	 *
@@ -394,10 +394,10 @@ class ModuleAttachment {
 	 */
 	function setTemplet($templet) {
 		$this->_templet = $templet;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더 템플릿파일을 설정한다.
 	 *
@@ -406,10 +406,10 @@ class ModuleAttachment {
 	 */
 	function setTempletFile($path) {
 		$this->_templet_file = $path;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더를 사용하는 모듈을 설정한다.
 	 *
@@ -418,10 +418,10 @@ class ModuleAttachment {
 	 */
 	function setModule($module) {
 		$this->_module = $module;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더를 사용하는 대상을 설정한다.
 	 *
@@ -430,10 +430,10 @@ class ModuleAttachment {
 	 */
 	function setTarget($target) {
 		$this->_target = $target;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 업로더가 위지윅에디터와 연동되는지 설정한다.
 	 * 위지윅에디터가 설정되면 $target 값이 $wysiwyg 으로 대체된다.
@@ -444,10 +444,10 @@ class ModuleAttachment {
 	function setWysiwyg($wysiwyg) {
 		$this->_target = $wysiwyg;
 		$this->_wysiwyg = true;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 파일을 불러올 주소를 지정한다.
 	 *
@@ -455,10 +455,10 @@ class ModuleAttachment {
 	 */
 	function setLoader($url) {
 		$this->_loader = $url;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 파일추가 버튼 텍스트를 설정한다.
 	 *
@@ -467,10 +467,10 @@ class ModuleAttachment {
 	 */
 	function setButtonText($text) {
 		$this->_buttonText = $text;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 파일 삭제모드를 설정한다.
 	 *
@@ -479,10 +479,10 @@ class ModuleAttachment {
 	 */
 	function setDeleteMode($deleteMode) {
 		$this->_deleteMode = $deleteMode;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 첨부파일의 형식을 제한한다.
 	 * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#Limiting_accepted_file_types
@@ -492,10 +492,10 @@ class ModuleAttachment {
 	 */
 	function setAccept($accept) {
 		$this->_accept = $accept;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 설정된 버튼 텍스트를 반환한다.
 	 *
@@ -504,13 +504,13 @@ class ModuleAttachment {
 	function getButtonText() {
 		return $this->_buttonText == null ? '파일추가' : $this->_buttonText;
 	}
-	
+
 	/**
 	 * 업로더를 사용하기 위한 필수요소를 미리 불러온다.
 	 */
 	function preload() {
 		$this->IM->addHeadResource('script',$this->getModule()->getDir().'/scripts/script.js');
-		
+
 		if ($this->_templet_file == null) {
 			$Templet = $this->getTemplet($this->_templet);
 			$package = $Templet->getPackage();
@@ -526,7 +526,7 @@ class ModuleAttachment {
 			}
 		}
 	}
-	
+
 	/**
 	 * 업로더를 가져온다.
 	 *
@@ -535,9 +535,9 @@ class ModuleAttachment {
 	function get() {
 		$this->preload();
 		if ($this->_disabled == true) return '';
-		
+
 		$this->_id = $this->_id == null ? uniqid('UPLOADER_') : $this->_id;
-		
+
 		$header = PHP_EOL.'<!-- ATTACHMENT MODULE -->'.PHP_EOL;
 		$header.= '<div id="'.$this->_id.'" data-role="module" data-name="'.$this->_name.'" data-module="attachment" data-templet="'.$this->getTemplet($this->_templet)->getName().'" data-uploader="TRUE" data-delete-mode="'.$this->_deleteMode.'"';
 		if ($this->_module != null) $header.= ' data-uploader-module="'.$this->_module.'"';
@@ -545,11 +545,11 @@ class ModuleAttachment {
 		if ($this->_loader != null) $header.= ' data-uploader-loader="'.$this->_loader.'"';
 		$header.= ' data-uploader-wysiwyg="'.($this->_wysiwyg == true ? 'TRUE' : 'FALSE').'"';
 		$header.= '>'.PHP_EOL;
-		$header.= '<div style="display:none;"><input type="file" accept="'.$this->_accept.'" multiple></div>'.PHP_EOL;
+		$header.= '<div style="display:none;"><input type="file" title="파일첨부" accept="'.$this->_accept.'" multiple></div>'.PHP_EOL;
 		$footer = PHP_EOL.'<script>$(document).ready(function() { Attachment.init("'.$this->_id.'"); });</script>'.PHP_EOL;
 		$footer.= '</div>';
 		$footer.= '<!--// ATTACHMENT MODULE -->'.PHP_EOL;
-		
+
 		/**
 		 * 템플릿파일을 호출한다.
 		 */
@@ -558,11 +558,11 @@ class ModuleAttachment {
 		} else {
 			$html = $this->getTemplet($this->_templet)->getExternal($this->_templet_file,get_defined_vars(),$header,$footer);
 		}
-		
+
 		$this->reset();
 		return $html;
 	}
-	
+
 	/**
 	 * 업로더를 비활성화 한다.
 	 *
@@ -572,7 +572,7 @@ class ModuleAttachment {
 		$this->_disabled = true;
 		return $this;
 	}
-	
+
 	/**
 	 * 현재 객체를 복사한다.
 	 *
@@ -582,21 +582,21 @@ class ModuleAttachment {
 		$copy = unserialize(serialize($this));
 		return $copy;
 	}
-	
+
 	/**
 	 * 업로더를 출력한다.
 	 */
 	function doLayout() {
 		echo $this->get();
 	}
-	
+
 	private function _buildScript() {
 		$processUrl = $this->IM->getProcessUrl('attachment','upload');
 		$configs = array();
 		$configs['module'] = $this->_module != null ? $this->_module : '';
 		$configs['target'] = $this->_target != null ? $this->_target : '';
 		$configs['wysiwyg'] = $this->_wysiwyg == true;
-		
+
 		$script = PHP_EOL;
 		$script.= '<script>'.PHP_EOL;
 		$script.= '$(document).ready(function() {'.PHP_EOL;
@@ -605,14 +605,14 @@ class ModuleAttachment {
 		if (empty($this->_loadFile) == false) {
 			$script.= '    Attachment.loadFile("'.$this->_id.'","'.Encoder(json_encode($this->_loadFile)).'");'.PHP_EOL;
 		}
-		
+
 		$script.= '});'.PHP_EOL;
 
 		$script.= '</script>'.PHP_EOL;
-		
+
 		return $script;
 	}
-	
+
 	/**
 	 * 첨부파일폴더를 지정한다.
 	 *
@@ -621,10 +621,10 @@ class ModuleAttachment {
 	 */
 	function setCurrentPath($path=null) {
 		$this->_currentPath = $path;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * 하나의 첨부파일폴더에 너무 많은 파일이 저장되는 것을 방지하기 위해 매달 새로운 폴더를 생성하고 해당 경로를 반환한다.
 	 *
@@ -638,11 +638,11 @@ class ModuleAttachment {
 			mkdir($this->IM->getAttachmentPath().'/'.$folder);
 			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
 		}
-		
+
 		if ($isFullPath == true) $folder = $this->IM->getAttachmentPath().'/'.$folder;
 		return $folder;
 	}
-	
+
 	/**
 	 * 첨부파일 임시폴더 상대경로를 가져온다.
 	 *
@@ -655,11 +655,11 @@ class ModuleAttachment {
 			mkdir($this->IM->getAttachmentPath().'/'.$folder);
 			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
 		}
-		
+
 		if ($isFullPath == true) $folder = $this->IM->getAttachmentDir().'/'.$folder;
 		return $folder;
 	}
-	
+
 	/**
 	 * 첨부파일 임시폴더 경로를 가져온다.
 	 *
@@ -672,29 +672,29 @@ class ModuleAttachment {
 			mkdir($this->IM->getAttachmentPath().'/'.$folder);
 			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
 		}
-		
+
 		if ($isFullPath == true) $folder = $this->IM->getAttachmentPath().'/'.$folder;
 		return $folder;
 	}
-	
+
 	function getTempFile($isFullPath=false) {
 		while (true) {
 			$hash = md5(time().rand(10000000,99999999));
 			if (is_file($this->getTempPath(true).'/'.$hash) == false) break;
 		}
-		
+
 		return $this->getTempPath($isFullPath).'/'.$hash;
 	}
-	
+
 	function getFileExtraInfo($idx,$param=null) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		$extra = $file->extra == '' ? null : json_decode($file->extra);
-		
+
 		if ($extra == null || $param == null) return $extra;
 		if ($param != null && !empty($extra->$param)) return $extra->$param;
 		else return $extra;
 	}
-	
+
 	function setFileExtraInfo($idx,$param,$value=null,$isReplace=false) {
 		if ($isReplace == true) {
 			$extra = new stdClass();
@@ -709,23 +709,23 @@ class ModuleAttachment {
 		} else {
 			$extra->$param = $value;
 		}
-		
+
 		$extra = json_encode($extra,JSON_UNESCAPED_UNICODE);
 		$this->db()->update($this->table->attachment,array('extra'=>$extra))->where('idx',$idx)->execute();
 	}
-	
+
 	function getFileMime($path) {
 		if (is_file($path) == true) {
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$mime = finfo_file($finfo,$path);
 			finfo_close($finfo);
-			
+
 			return $mime;
 		} else {
 			return false;
 		}
 	}
-	
+
 	function getFileType($mime) {
 		$type = 'file';
 		if ($mime == 'image/svg+xml') {
@@ -745,18 +745,18 @@ class ModuleAttachment {
 		} elseif (preg_match('/application\/(zip|gzip|x\-rar\-compressed|x\-gzip)/',$mime) == true) {
 			$type = 'archive';
 		}
-		
+
 		return $type;
 	}
-	
+
 	function getFileExtension($filename,$filepath='') {
 		return strtolower(pathinfo($filename,PATHINFO_EXTENSION));
 	}
-	
+
 	function getPreviewHtml($filename,$filepath) {
-		
+
 	}
-	
+
 	/**
 	 * 실제 서버상의 경로는 보안을 위하여 숨기고, 유저가 접근할 수 있는 파일경로(URL)을 반환한다.
 	 *
@@ -770,14 +770,14 @@ class ModuleAttachment {
 		} else {
 			$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		}
-		
+
 		if ($isFullUrl == true) {
 			$url = IsHttps() == true ? 'https://' : 'http://';
 			$url.= $_SERVER['HTTP_HOST'].__IM_DIR__;
 		} else {
 			$url = __IM_DIR__;
 		}
-		
+
 		if ($file == null) {
 			return null;
 		} else {
@@ -787,11 +787,11 @@ class ModuleAttachment {
 				elseif (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.thumb') == true) return $url.'/attachment/thumbnail/'.$file->idx.'/'.urlencode($file->name).'.jpg';
 				else return null;
 			}
-			
+
 			return $url.'/attachment/'.$view.'/'.$file->idx.'/'.urlencode($file->name);
 		}
 	}
-	
+
 	/**
 	 * 썸네일을 생성한다.
 	 *
@@ -807,7 +807,7 @@ class ModuleAttachment {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
 		$extName = $imginfo[2];
-		
+
 		switch($extName) {
 			case '2' :
 				$src = @ImageCreateFromJPEG($imgPath) or $result = false;
@@ -824,24 +824,24 @@ class ModuleAttachment {
 			default :
 				$result = false;
 		}
-	
+
 		if ($result == true) {
 			if ($width == 0) {
 				$width = ceil($height*$imginfo[0]/$imginfo[1]);
 			}
-	
+
 			if ($height == 0) {
 				$height = $width*$imginfo[1]/$imginfo[0];
 			}
-			
+
 			if ($imginfo[0] == $width && $imginfo[1] == $height) {
 				@copy($imgPath,$thumbPath);
 				if ($delete == true) @unlink($imgPath);
 				return true;
 			}
-			
+
 			$thumb = @ImageCreateTrueColor($width,$height);
-			
+
 			switch ($type) {
 				case 'png':
 					$background = imagecolorallocate($src,0,0,0);
@@ -849,17 +849,17 @@ class ModuleAttachment {
 					imagealphablending($thumb,false);
 					imagesavealpha($thumb,true);
 					break;
-					
+
 				case 'gif':
 					$background = imagecolorallocate($src, 0, 0, 0);
 					imagecolortransparent($src, $background);
 					break;
 			}
-	
+
 			@ImageCopyResampled($thumb,$src,0,0,0,0,$width,$height,@ImageSX($src),@ImageSY($src)) or $result = false;
-			
+
 			$type = $forceType != null ? $forceType : $type;
-			
+
 			if ($type == 'jpg') {
 				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
@@ -873,14 +873,14 @@ class ModuleAttachment {
 			@ImageDestroy($thumb);
 			@chmod($thumbPath,0755);
 		}
-	
+
 		if ($delete == true) {
 			@unlink($imgPath);
 		}
-	
+
 		return $result;
 	}
-	
+
 	/**
 	 * 썸네일을 생성할때 지정된 가로 및 세로크기에 맞춰 비율에 따라 원본이미지를 자른 후 저장한다.
 	 *
@@ -896,13 +896,13 @@ class ModuleAttachment {
 		$result = true;
 		$imginfo = @getimagesize($imgPath);
 		$extName = $imginfo[2];
-		
+
 		if ($imginfo[0] == $width && $imginfo[1] == $height) {
 			@copy($imgPath,$thumbPath);
 			if ($delete == true) @unlink($imgPath);
 			return true;
 		}
-		
+
 		switch($extName) {
 			case '2' :
 				$src = @ImageCreateFromJPEG($imgPath) or $result = false;
@@ -919,27 +919,27 @@ class ModuleAttachment {
 			default :
 				$result = false;
 		}
-	
+
 		if ($result == true) {
-			if ($width * $imginfo[1] < $height * $imginfo[0]) { 
-				$rs_img_width = round($imginfo[1] * ($width / $height)); 
-				$rs_img_height = $imginfo[1]; 
-				
-				$x = round(($imginfo[0] - $rs_img_width) / 2); 
-				$y = 0; 
-			} else { 
-				$rs_img_width  = $imginfo[0]; 
-				$rs_img_height = round($imginfo[0] * ($height / $width)); 
-				
-				$x = 0; 
-				$y = round(($imginfo[1] - $rs_img_height) / 2); 
+			if ($width * $imginfo[1] < $height * $imginfo[0]) {
+				$rs_img_width = round($imginfo[1] * ($width / $height));
+				$rs_img_height = $imginfo[1];
+
+				$x = round(($imginfo[0] - $rs_img_width) / 2);
+				$y = 0;
+			} else {
+				$rs_img_width  = $imginfo[0];
+				$rs_img_height = round($imginfo[0] * ($height / $width));
+
+				$x = 0;
+				$y = round(($imginfo[1] - $rs_img_height) / 2);
 			}
-			
+
 			$sc_img_width = $rs_img_width;
 			$sc_img_height = $rs_img_height;
-			
+
 			$crop = @ImageCreateTrueColor($rs_img_width,$rs_img_height);
-			
+
 			switch ($type) {
 				case 'png':
 					$background = imagecolorallocate($src,0,0,0);
@@ -947,15 +947,15 @@ class ModuleAttachment {
 					imagealphablending($crop,false);
 					imagesavealpha($crop,true);
 					break;
-					
+
 				case 'gif':
 					$background = imagecolorallocate($src,0,0,0);
 					imagecolortransparent($src,$background);
 					break;
 			}
-	
+
 			@ImageCopyResampled($crop,$src,0,0,$x,$y,$rs_img_width,$rs_img_height,$rs_img_width,$rs_img_height) or $result = false;
-			
+
 			if ($result == true) {
 				$thumb = @ImageCreateTrueColor($width,$height);
 				switch ($type) {
@@ -965,18 +965,18 @@ class ModuleAttachment {
 						imagealphablending($thumb,false);
 						imagesavealpha($thumb,true);
 						break;
-						
+
 					case 'gif':
 						$background = imagecolorallocate($crop,0,0,0);
 						imagecolortransparent($crop,$background);
 						break;
 				}
-				
+
 				@ImageCopyResampled($thumb,$crop,0,0,0,0,$width,$height,$rs_img_width,$rs_img_height) or $result = false;
 			}
-			
+
 			$type = $forceType != null ? $forceType : $type;
-			
+
 			if ($type == 'jpg') {
 				@ImageJPEG($thumb,$thumbPath,100) or $result = false;
 			} elseif($type == 'gif') {
@@ -991,14 +991,14 @@ class ModuleAttachment {
 			@ImageDestroy($crop);
 			@chmod($thumbPath,0755);
 		}
-	
+
 		if ($delete == true) {
 			@unlink($imgPath);
 		}
-	
+
 		return $result;
 	}
-	
+
 	/**
 	 * 파일 아이콘을 가져온다.
 	 *
@@ -1007,23 +1007,23 @@ class ModuleAttachment {
 	 */
 	function getFileIcon($type,$extension='') {
 		$icon = 'icon_large_etc.png';
-		
+
 		if ($type == 'folder') $icon = 'icon_large_folder.png';
 		if ($type == 'document') $icon = 'icon_large_document.png';
 		if ($type == 'archive') $icon = 'icon_large_archive.png';
 		if ($type == 'video') $icon = 'icon_large_video.png';
 		if ($type == 'audio') $icon = 'icon_large_audio.png';
 		if ($type == 'image') $icon = 'icon_large_image.png';
-		
+
 		if ($extension == 'hwp') $icon = 'icon_large_hwp.png';
 		if ($extension == 'pdf') $icon = 'icon_large_pdf.png';
 		if ($extension == 'xls' || $extension == 'xlsx') $icon = 'icon_large_xls.png';
 		if ($extension == 'doc' || $extension == 'docx') $icon = 'icon_large_doc.png';
 		if ($extension == 'ppt' || $extension == 'pptx') $icon = 'icon_large_ppt.png';
-		
+
 		return $this->getModule()->getDir().'/images/'.$icon;
 	}
-	
+
 	/**
 	 * 파일정보를 반환한다.
 	 *
@@ -1033,10 +1033,10 @@ class ModuleAttachment {
 	 */
 	function getFileInfo($idx,$is_realpath=false) {
 		if (isset($this->files[$idx]) == true && $this->files[$idx]->is_realpath == $is_realpath) return $this->files[$idx];
-		
+
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return null;
-		
+
 		$fileInfo = new stdClass();
 		$fileInfo->idx = $idx;
 		$fileInfo->icon = $this->getFileIcon($file->type,$this->getFileExtension($file->name));
@@ -1059,19 +1059,19 @@ class ModuleAttachment {
 		$fileInfo->origin = $file->origin;
 		$fileInfo->duplicate = $file->duplicate > 0 ? $this->db()->select($this->table->attachment,'idx')->where('origin',$idx)->get('idx') : array();
 		$fileInfo->is_realpath = $is_realpath;
-		
+
 		$this->files[$idx] = $fileInfo;
-		
+
 		return $this->files[$idx];
 	}
-	
+
 	function getTotalFileSize($files) {
 		if (is_array($files) == false || count($files) == 0) return 0;
-		
+
 		$size = $this->db()->select($this->table->attachment,'sum(size) as total_size')->where('idx',$files,'IN')->getOne();
 		return isset($size->total_size) == true ? $size->total_size : 0;
 	}
-	
+
 	/**
 	 * 파일을 삭제한다.
 	 *
@@ -1080,22 +1080,22 @@ class ModuleAttachment {
 	 */
 	function fileDelete($idx) {
 		if (!$idx) return false;
-		
+
 		$idx = is_array($idx) == false ? array($idx) : $idx;
 		if (empty($idx) == true) return false;
-		
+
 		$files = $this->db()->select($this->table->attachment)->where('idx',$idx,'IN')->get();
 		foreach ($files as $file) {
 			if ($file->module != '' && $file->module != 'site') {
 				$mModule = $this->IM->getModule($file->module);
-				
+
 				if (method_exists($mModule,'syncAttachment') == true) {
 					$mModule->syncAttachment('delete',$file->idx);
 				}
 			}
-			
+
 			$this->db()->delete($this->table->attachment)->where('idx',$file->idx)->execute();
-			
+
 			if ($file->origin == 0) {
 				if ($file->duplicate == 0) {
 					@unlink($this->IM->getAttachmentPath().'/'.$file->path);
@@ -1116,10 +1116,10 @@ class ModuleAttachment {
 				$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$file->idx)->execute();
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * 파일 업로드를 완료한다.
 	 * 업로드가 시작되기전 해당파일이 업로드될 임시주소를 먼저 생성하기 위해, 데이터베이스에 업로드예정파일에 대한 메타데이터를 미리 생성하고,
@@ -1130,10 +1130,10 @@ class ModuleAttachment {
 	 */
 	function fileUpload($idx) {
 		if (!$idx) return false;
-		
+
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		$filePath = $this->IM->getAttachmentPath().'/'.$file->path;
-		
+
 		$insert = array();
 		$insert['mime'] = $this->getFileMime($filePath);
 		$insert['type'] = $this->getFileType($insert['mime']);
@@ -1149,10 +1149,10 @@ class ModuleAttachment {
 
 		rename($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
-		
+
 		return $this->getFileInfo($idx);
 	}
-	
+
 	/**
 	 * 특정경로에 존재하는 파일을 첨부파일모듈상의 파일로 저장한다.
 	 *
@@ -1166,7 +1166,7 @@ class ModuleAttachment {
 	 */
 	function fileSave($name,$filePath,$module='',$target='',$status='DRAFT',$isDelete=true,$reg_date=null) {
 		$reg_date = $reg_date == null ? time() : $reg_date;
-		
+
 		$insert = array();
 		$insert['module'] = $module;
 		$insert['target'] = $target;
@@ -1192,12 +1192,12 @@ class ModuleAttachment {
 		} else {
 			copy($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
 		}
-		
+
 		$idx = $this->db()->insert($this->table->attachment,$insert)->execute();
-		
+
 		return $idx;
 	}
-	
+
 	/**
 	 * 기존파일을 새로운 파일로 대체한다.
 	 *
@@ -1211,10 +1211,10 @@ class ModuleAttachment {
 		if (is_numeric($idx) == false) return false;
 		$oFile = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($oFile == null) return false;
-		
+
 		$temp = explode('/',$oFile->path);
 		$this->setCurrentPath($temp[0]);
-		
+
 		$insert = array();
 		$insert['name'] = $name;
 		$insert['mime'] = $this->getFileMime($filePath);
@@ -1239,7 +1239,7 @@ class ModuleAttachment {
 			copy($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
 		}
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
-		
+
 		if ($oFile->origin == 0) {
 			if ($oFile->duplicate == 0) {
 				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path);
@@ -1259,12 +1259,12 @@ class ModuleAttachment {
 			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$oFile->origin)->count();
 			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$oFile->origin)->execute();
 		}
-		
+
 		$this->setCurrentPath();
-		
+
 		return $idx;
 	}
-	
+
 	/**
 	 * 파일을 복사한다.
 	 *
@@ -1274,7 +1274,7 @@ class ModuleAttachment {
 	function fileCopy($idx) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		if ($file == null) return false;
-		
+
 		if ($file->origin == 0) {
 			unset($file->idx);
 			$file->size = 0;
@@ -1282,19 +1282,19 @@ class ModuleAttachment {
 			$file->reg_date = time();
 			$file->download = 0;
 			$file->status = 'DRAFT';
-			
+
 			$cidx = $this->db()->insert($this->table->attachment,(array)$file)->execute();
 			if ($cidx === false) return false;
-			
+
 			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$idx)->count();
 			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$idx)->execute();
-			
+
 			return $cidx;
 		} else {
 			return $this->fileCopy($file->origin);
 		}
 	}
-	
+
 	/**
 	 * 파일을 다운로드한다.
 	 *
@@ -1303,13 +1303,13 @@ class ModuleAttachment {
 	 */
 	function fileDownload($idx,$isHit=true) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-		
+
 		/**
 		 * 파일을 업로드한 모듈을 호출하여, 파일 다운로드권한을 확인한다.
 		 */
 		if ($file->module != '' && $file->module != 'site') {
 			$mModule = $this->IM->getModule($file->module);
-			
+
 			if (method_exists($mModule,'syncAttachment') == true) {
 				$downloadable = $mModule->syncAttachment('download',$idx);
 				if ($downloadable !== null && $downloadable !== true) {
@@ -1323,20 +1323,20 @@ class ModuleAttachment {
 				}
 			}
 		}
-		
+
 		if ($file == null) {
 			$this->printError('FILE_NOT_FOUND');
 			exit;
 		} else {
 			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->IM->getAttachmentPath().'/'.$file->path;
-			
+
 			if (is_file($filePath) == true) {
 				if ($isHit == true) $this->db()->update($this->table->attachment,array('download'=>$this->db()->inc()))->where('idx',$idx)->execute();
 				$file->name = str_replace(' ','_',$file->name);
-	
+
 				header("Pragma: public");
 				header("Expires: 0");
-				header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+				header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 				header("Cache-Control: private",false);
 				if (preg_match('/Safari/',$_SERVER['HTTP_USER_AGENT']) == true) {
 					header('Content-Disposition: attachment; filename="'.$file->name.'"');
@@ -1346,9 +1346,9 @@ class ModuleAttachment {
 				header("Content-Transfer-Encoding: binary");
 				header('Content-Type: '.($file->mime == 'Unknown' ? 'application/x-unknown' : $file->mime));
 				header('Content-Length: '.$file->size);
-				
+
 				session_write_close();
-				
+
 				readfile($filePath);
 				exit;
 			} else {
@@ -1357,7 +1357,7 @@ class ModuleAttachment {
 			}
 		}
 	}
-	
+
 	/**
 	 * 임시폴더에 존재하는 임시파일을 다운로드 받는다.
 	 *
@@ -1369,10 +1369,10 @@ class ModuleAttachment {
 		if (is_file($this->getTempPath(true).'/'.$name) == true) {
 			$mime = $this->getFileMime($this->getTempPath(true).'/'.$name);
 			$filename = $newname ? $newname : $name;
-			
+
 			header("Pragma: public");
 			header("Expires: 0");
-			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Cache-Control: private",false);
 			if (preg_match('/Safari/',$_SERVER['HTTP_USER_AGENT']) == true) {
 				header('Content-Disposition: attachment; filename="'.$filename.'"');
@@ -1382,11 +1382,11 @@ class ModuleAttachment {
 			header("Content-Transfer-Encoding: binary");
 			header('Content-Type: '.$mime);
 			header('Content-Length: '.filesize($this->getTempPath(true).'/'.$name));
-			
+
 			session_write_close();
-			
+
 			readfile($this->getTempPath(true).'/'.$name);
-			
+
 			if ($is_delete == true) {
 				flush();
 				sleep(1);
@@ -1398,7 +1398,7 @@ class ModuleAttachment {
 			exit;
 		}
 	}
-	
+
 	/**
 	 * 파일정보를 출판됨 상태로 변경한다.
 	 * 기본적으로 업로드된 파일은 임시파일상태로 업로드가 되며, 출판상태로 변경되지 않을 경우 임시파일정리 작업시 파일이 삭제된다.
@@ -1411,18 +1411,18 @@ class ModuleAttachment {
 	 */
 	function filePublish($idx,$module=null,$target=null,$name=null) {
 		if (!$idx) return false;
-		
+
 		if (isset($this->files[$idx]) == true) unset($this->files[$idx]);
-		
+
 		$insert = array('status'=>'PUBLISHED');
 		if ($module != null) $insert['module'] = $module;
 		if ($target != null) $insert['target'] = $target;
 		if ($name != null) $insert['name'] = $name;
-		
+
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 		return true;
 	}
-	
+
 	/**
 	 * 파일접근과 관련된 에러메세지를 띄운다.
 	 *
@@ -1434,18 +1434,18 @@ class ModuleAttachment {
 		$error->message = $this->getErrorText($code);
 		$error->description = $path;
 		$error->type = 'back';
-		
+
 		if ($code == 'FILE_NOT_FOUND') {
 			header("HTTP/1.1 404 Not Found");
 		}
-		
+
 		if ($code == 'FILE_ACCESS_DENIED') {
 			header("HTTP/1.1 403 FORBIDDEN");
 		}
-		
+
 		$this->IM->printError($error);
 	}
-	
+
 	/**
 	 * 현재 모듈에서 처리해야하는 요청이 들어왔을 경우 처리하여 결과를 반환한다.
 	 * 소스코드 관리를 편하게 하기 위해 각 요쳥별로 별도의 PHP 파일로 관리한다.
@@ -1457,21 +1457,21 @@ class ModuleAttachment {
 	 */
 	function doProcess($action) {
 		$results = new stdClass();
-		
+
 		$values = (object)get_defined_vars();
 		$this->IM->fireEvent('beforeDoProcess',$this->getModule()->getName(),$action,$values);
-		
+
 		/**
 		 * 모듈의 process 폴더에 $action 에 해당하는 파일이 있을 경우 불러온다.
 		 */
 		if (is_file($this->getModule()->getPath().'/process/'.$action.'.php') == true) {
 			INCLUDE $this->getModule()->getPath().'/process/'.$action.'.php';
 		}
-		
+
 		unset($values);
 		$values = (object)get_defined_vars();
 		$this->IM->fireEvent('afterDoProcess',$this->getModule()->getName(),$action,$values,$results);
-		
+
 		return $results;
 	}
 }
