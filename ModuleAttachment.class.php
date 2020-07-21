@@ -713,7 +713,13 @@ class ModuleAttachment {
 		$extra = json_encode($extra,JSON_UNESCAPED_UNICODE);
 		$this->db()->update($this->table->attachment,array('extra'=>$extra))->where('idx',$idx)->execute();
 	}
-
+	
+	/**
+	 * 특정경로에 있는 파일의 MIME 값을 읽어온다.
+	 *
+	 * @param string $path 파일절대경로
+	 * @return string $mime 파일 MIME
+	 */
 	function getFileMime($path) {
 		if (is_file($path) == true) {
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -725,7 +731,13 @@ class ModuleAttachment {
 			return false;
 		}
 	}
-
+	
+	/**
+	 * 파일의 MIME 값을 이용하여 파일종류를 정리한다.
+	 *
+	 * @param string $mime 파일 MIME
+	 * @return string $type 파일종류
+	 */
 	function getFileType($mime) {
 		$type = 'file';
 		if ($mime == 'image/svg+xml') {
