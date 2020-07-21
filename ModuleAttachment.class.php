@@ -760,7 +760,14 @@ class ModuleAttachment {
 
 		return $type;
 	}
-
+	
+	/**
+	 * 파일의 확장자만 가져온다.
+	 *
+	 * @param string $filename 파일명
+	 * @param string $filepath 파일절대경로 (파일절대경로가 존재할 경우, 실제 파일의 확장자를 가져온다.)
+	 * @return string $extension 파일 확장자
+	 */
 	function getFileExtension($filename,$filepath='') {
 		return strtolower(pathinfo($filename,PATHINFO_EXTENSION));
 	}
