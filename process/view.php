@@ -42,7 +42,7 @@ if ($file == null) {
 				exit;
 			}
 		} else {
-			header('Content-Type: '.$file->size);
+			header('Content-Type: '.$file->mime);
 			session_write_close();
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);
 		}
