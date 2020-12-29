@@ -12,8 +12,12 @@
  */
 if (defined('__IM__') == false) exit;
 
-$idx = Request('idx');
+$idx = Param('idx');
 $name = Request('name');
 
-$this->fileDownload($idx);
+if (is_numeric($idx) == true) {
+	$this->fileDownload($idx);
+} elseif ($idx == 'temp') {
+	$this->tempFileDownload($name,false);
+}
 ?>
