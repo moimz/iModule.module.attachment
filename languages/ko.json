@@ -14,8 +14,32 @@
 			}
 		}
 	},
+	"status":{
+		"DRAFT":"임시",
+		"PUBLISHED":"정상"
+	},
 	"error":{
 		"FILE_NOT_FOUND":"파일을 찾을 수 없습니다.",
 		"FILE_ACCESS_DENIED":"파일에 접근할 수 있는 권한이 없습니다."
+	},
+	"admin":{
+		"list":{
+			"title":"첨부파일관리",
+			"grid_help":"항목 더블클릭 : 다운로드 / 항목 우클릭 : 메뉴",
+			"keyword":"파일명/경로",
+			"columns":{
+				"name":"파일명",
+				"module":"첨부된 모듈",
+				"target":"첨부된 위치",
+				"size":"용량",
+				"path":"실제경로",
+				"reg_date":"첨부시각",
+				"status":"상태",
+				"download":"조회"
+			}
+		},
+		"temp":{
+			"title":"임시파일관리"
+		}
 	}
 }
