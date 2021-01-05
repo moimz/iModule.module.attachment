@@ -677,6 +677,12 @@ class ModuleAttachment {
 		return $folder;
 	}
 
+	/**
+	 * 사용할 수 있는 임시파일명을 가져온다.
+	 *
+	 * @param boolean $isFullPath 전체경로여부
+	 * @return string $tempFilePath
+	 */
 	function getTempFile($isFullPath=false) {
 		while (true) {
 			$hash = md5(time().rand(10000000,99999999));
@@ -685,7 +691,17 @@ class ModuleAttachment {
 
 		return $this->getTempPath($isFullPath).'/'.$hash;
 	}
-
+	
+	/**
+	 * 파일명으로 쓸수없는 문자열을 치환한다.
+	 *
+	 * @param string $filename
+	 * @return string $filename
+	 */
+	function getSafeFileName($filename) {
+		return str_replace(array('\\','/',':','*','?','"','<','>','|'),array('','-','-','',"'",'[',']','-'),$filename);
+	}
+	
 	function getFileExtraInfo($idx,$param=null) {
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
 		$extra = $file->extra == '' ? null : json_decode($file->extra);
@@ -1387,7 +1403,7 @@ class ModuleAttachment {
 	function tempFileDownload($name,$is_delete=false,$newname='') {
 		if (is_file($this->getTempPath(true).'/'.$name) == true) {
 			$mime = $this->getFileMime($this->getTempPath(true).'/'.$name);
-			$filename = $newname ? $newname : $name;
+			$filename = $this->getSafeFileName($newname ? $newname : $name);
 
 			header("Pragma: public");
 			header("Expires: 0");
