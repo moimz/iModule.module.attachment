@@ -174,6 +174,14 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 							}
 							return filter;
 						});
+					}),
+					"-",
+					new Ext.Button({
+						iconCls:"mi mi-trash",
+						text:"선택된 임시파일 삭제",
+						handler:function() {
+							Attachment.temp.delete();
+						}
 					})
 				],
 				store:new Ext.data.JsonStore({
@@ -228,7 +236,7 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 						return '<span style="color:#999;">' + temp.join("/") + '/</span>' + name;
 					}
 				},{
-					text:Attachment.getText("admin/list/columns/reg_date"),
+					text:Attachment.getText("admin/temp/columns/reg_date"),
 					width:145,
 					dataIndex:"reg_date",
 					sortable:true,
@@ -263,6 +271,14 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 								document.downloadFrame.location.href = ENV.DIR + "/attachment/download/temp/" + record.data.name;
 							}
 						});
+						
+						menu.add({
+							iconCls:"mi mi-trash",
+							text:"파일삭제",
+							handler:function() {
+								Attachment.temp.delete();
+							}
+						})
 						
 						e.stopEvent();
 						menu.showAt(e.getXY());
