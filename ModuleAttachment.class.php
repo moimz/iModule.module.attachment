@@ -1248,7 +1248,8 @@ class ModuleAttachment {
 		if ($oFile == null) return false;
 
 		$temp = explode('/',$oFile->path);
-		$this->setCurrentPath($temp[0]);
+		$oName = array_pop($temp);
+		$path = implode('/',$temp);
 
 		$insert = array();
 		$insert['name'] = $name;
@@ -1256,7 +1257,7 @@ class ModuleAttachment {
 		$insert['size'] = filesize($filePath);
 		$insert['type'] = $this->getFileType($insert['mime']);
 		$hash = md5_file($filePath);
-		$insert['path'] = $this->getCurrentPath().'/'.$hash.'.'.base_convert(microtime(true)*10000,10,32).'.'.$this->getFileExtension($name,$filePath);
+		$insert['path'] = $path.'/'.$hash.'.'.base_convert(microtime(true)*10000,10,32).'.'.$this->getFileExtension($name,$filePath);
 		$insert['width'] = 0;
 		$insert['height'] = 0;
 		if ($insert['type'] == 'image') {
@@ -1266,7 +1267,6 @@ class ModuleAttachment {
 		}
 		$insert['origin'] = 0;
 		$insert['wysiwyg'] = 'FALSE';
-		$insert['reg_date'] = time();
 
 		if ($isDelete == true) {
 			rename($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
@@ -1294,8 +1294,6 @@ class ModuleAttachment {
 			$duplicate = $this->db()->select($this->table->attachment)->where('origin',$oFile->origin)->count();
 			$this->db()->update($this->table->attachment,array('duplicate'=>$duplicate))->where('idx',$oFile->origin)->execute();
 		}
-
-		$this->setCurrentPath();
 
 		return $idx;
 	}

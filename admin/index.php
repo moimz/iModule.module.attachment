@@ -154,6 +154,16 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 							}
 						});
 						
+						menu.add("-");
+						
+						menu.add({
+							iconCls:"xi xi-exchange",
+							text:"파일변경",
+							handler:function() {
+								Attachment.file.replace(record.data.idx);
+							}
+						});
+						
 						e.stopEvent();
 						menu.showAt(e.getXY());
 					}
