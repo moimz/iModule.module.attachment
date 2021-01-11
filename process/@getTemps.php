@@ -16,6 +16,8 @@ $lists = array();
 $tempPath = @opendir($this->getTempPath(true));
 while ($tempName = @readdir($tempPath)) {
 	if ($tempName != '.' && $tempName != '..' && is_file($this->getTempPath(true).'/'.$tempName) == true) {
+		if ($this->db()->select($this->table->attachment)->where('path',$this->getTempDir().'/'.$tempName)->has() == true) continue;
+		
 		$file = new stdClass();
 		$file->name = $tempName;
 		$file->path = $this->getTempPath(false).'/'.$tempName;
