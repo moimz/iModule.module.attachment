@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 4. 1.
+ * @modified 2021. 5. 24.
  */
 if (defined('__IM__') == false) exit;
 
@@ -16,7 +16,8 @@ if (isset($_FILES['file']['name']) == true && $_FILES['file']['name']) {
 	$module = Request('module');
 	$target = Request('target');
 	
-	$name = $_FILES['file']['name'];
+	$mNormalizer = new UnicodeNormalizer();
+	$name = $mNormalizer->normalize($_FILES['file']['name']);
 	$mime = $this->getFileMime($_FILES['file']['tmp_name']);
 	$type = $this->getFileType($mime);
 	if ($type == 'image') {
