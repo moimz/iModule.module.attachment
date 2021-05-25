@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2021. 5. 24.
+ * @modified 2021. 5. 25.
  */
 if (defined('__IM__') == false) exit;
 
@@ -40,6 +40,7 @@ if (isset($_FILES['file']['name']) == true && $_FILES['file']['name']) {
 	$file = $this->getFileInfo($idx);
 	$results->idx = $idx;
 	$results->code = Encoder($idx);
+	$results->size = $size;
 	$results->link = $type == 'image' ? $file->path : $file->download;
 }
 ?>

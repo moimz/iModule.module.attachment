@@ -7,7 +7,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2020. 1. 7.
+ * @modified 2021. 5. 25.
  */
 var Attachment = {
 	/**
@@ -224,7 +224,7 @@ var Attachment = {
 						if (file.type == "image") {
 							$wysiwyg.froalaEditor("html.insert",'<p><img data-idx="'+file.idx+'" class="fr-uploading" src="'+result+'"></p>');
 						} else {
-							$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx});
+							$wysiwyg.froalaEditor("file.insert",file.path,file.name,{idx:file.idx,size:file.size});
 						}
 					};
 					reader.readAsDataURL(oFile);
@@ -357,7 +357,7 @@ var Attachment = {
 		if (file.type == "image") {
 			$wysiwyg.froalaEditor("image.insert",file.path,false,{"idx":file.idx});
 		} else {
-			$wysiwyg.froalaEditor("file.insert",file.download,file.name,{idx:file.idx});
+			$wysiwyg.froalaEditor("file.insert",file.download,file.name,{idx:file.idx,size:file.size});
 		}
 	},
 	/**
