@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2018. 8. 23.
+ * @modified 2021. 5. 25.
  */
 if (defined('__IM__') == false) exit;
 
@@ -23,6 +23,9 @@ if ($file == null) {
 		if (is_file($this->IM->getAttachmentPath().'/'.$file->path) == true) {
 			header('Content-Type: '.$file->mime);
 			header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path));
+			header('Expires: '.gmdate('D, d M Y H:i:s',time() + 3600).' GMT');
+			header('Cache-Control: max-age=3600');
+			header('Pragma: public');
 			
 			session_write_close();
 			readfile($this->IM->getAttachmentPath().'/'.$file->path);

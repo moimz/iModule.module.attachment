@@ -8,7 +8,7 @@
  * @author Arzz (arzz@arzz.com)
  * @license MIT License
  * @version 3.0.0
- * @modified 2017. 11. 22.
+ * @modified 2021. 5. 25.
  */
 if (defined('__IM__') == false) exit;
 
@@ -21,10 +21,13 @@ if ($file == null) {
 	header("HTTP/1.1 404 Not Found");
 	exit;
 } else {
-	if (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.thumb') == true) {
+	if (is_file($this->IM->getAttachmentPath().'/'.$file->path.'.thumb') == true) {
 		if ($file->type == 'image') header('Content-Type: '.$file->mime);
 		else header('Content-Type: image/jpeg');
 		header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.thumb'));
+		header('Expires: '.gmdate('D, d M Y H:i:s',time() + 3600).' GMT');
+		header('Cache-Control: max-age=3600');
+		header('Pragma: public');
 		readfile($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
 		exit;
 	} elseif ($file->type == 'image' && file_exists($this->IM->getAttachmentPath().'/'.$file->path) == true) {
@@ -34,6 +37,9 @@ if ($file == null) {
 		}
 		header('Content-Type: '.$file->mime);
 		header('Content-Length: '.filesize($this->IM->getAttachmentPath().'/'.$file->path.'.thumb'));
+		header('Expires: '.gmdate('D, d M Y H:i:s',time() + 3600).' GMT');
+		header('Cache-Control: max-age=3600');
+		header('Pragma: public');
 		readfile($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
 		exit;
 	} else {
