@@ -43,6 +43,7 @@ for ($i=0, $loop=count($files);$i<$loop;$i++) {
 	
 	$idx = $this->db()->insert($this->table->attachment,$insert)->execute();
 	$files[$i]->idx = $idx;
+	$files[$i]->name = $name;
 	$files[$i]->icon = $this->getFileIcon($type,$extension);
 	$files[$i]->code = Encoder($idx);
 	$files[$i]->status = 'WAIT';
