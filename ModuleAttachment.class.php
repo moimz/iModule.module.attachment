@@ -1064,9 +1064,10 @@ class ModuleAttachment {
 	 *
 	 * @param int $idx 파일고유번호
 	 * @param boolean $is_realpath 파일의 실제서버상의 경로를 반환할지, 유저가 접근할 수 있는 파일경로(URL)을 반환할 지 여부(기본값 : false)
+	 * @param boolean $is_fullurl 파일 URL 의 전체 URL 반환여부(기본값 : false)
 	 * @return object $fileInfo 파일정보
 	 */
-	function getFileInfo($idx,$is_realpath=false) {
+	function getFileInfo($idx,$is_realpath=false,$is_fullurl=false) {
 		if (isset($this->files[$idx]) == true && $this->files[$idx]->is_realpath == $is_realpath) return $this->files[$idx];
 
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
@@ -1082,9 +1083,9 @@ class ModuleAttachment {
 		$fileInfo->width = $file->width;
 		$fileInfo->height = $file->height;
 		$fileInfo->hit = $file->download;
-		$fileInfo->path = $is_realpath == true ? $this->IM->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx);
-		$fileInfo->thumbnail = $this->getAttachmentUrl($idx,'thumbnail');
-		$fileInfo->download = $this->getAttachmentUrl($idx,'download');
+		$fileInfo->path = $is_realpath == true ? $this->IM->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx,'view',$is_fullurl);
+		$fileInfo->thumbnail = $this->getAttachmentUrl($idx,'thumbnail',$is_fullurl);
+		$fileInfo->download = $this->getAttachmentUrl($idx,'download',$is_fullurl);
 		$fileInfo->reg_date = $file->reg_date;
 		$fileInfo->code = Encoder($fileInfo->idx);
 		$fileInfo->module = $file->module;
