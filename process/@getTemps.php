@@ -16,8 +16,7 @@ $lists = array();
 $path = Request('path') ? Request('path') : 'temp';
 $files = GetDirectoryItems($this->getAttachmentPath().'/'.$path,'file',false);
 foreach ($files as $file) {
-	if (preg_match('/\.(view|thumb)$/',$file) == true) continue;
-	if ($this->db()->select($this->table->attachment)->where('path',str_replace($this->getAttachmentPath().'/','',$file))->has() == true) continue;
+	if ($this->db()->select($this->table->attachment)->where('path',str_replace($this->getAttachmentPath().'/','',preg_replace('/\.(view|thumb)$/','',$file)))->has() == true) continue;
 	
 	$item = new stdClass();
 	$item->name = basename($file);
