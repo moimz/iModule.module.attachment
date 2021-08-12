@@ -28,6 +28,14 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 					Admin.searchField("ModuleAttachmentListKeyword",250,Attachment.getText("admin/list/keyword"),function(keyword) {
 						Ext.getCmp("ModuleAttachmentList").getStore().getProxy().setExtraParam("keyword",keyword);
 						Ext.getCmp("ModuleAttachmentList").getStore().loadPage(1);
+					}),
+					"-",
+					new Ext.Button({
+						iconCls:"mi mi-trash",
+						text:Attachment.getText("admin/delete_selected"),
+						handler:function() {
+							Attachment.file.delete();
+						}
 					})
 				],
 				store:new Ext.data.JsonStore({
@@ -148,7 +156,7 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 						
 						menu.add({
 							iconCls:"xi xi-download",
-							text:"다운로드",
+							text:Attachment.getText("admin/download"),
 							handler:function() {
 								document.downloadFrame.location.href = ENV.DIR + "/attachment/download/" + record.data.idx + "/" + record.data.name;
 							}
@@ -158,9 +166,17 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 						
 						menu.add({
 							iconCls:"xi xi-exchange",
-							text:"파일변경",
+							text:Attachment.getText("admin/update"),
 							handler:function() {
 								Attachment.file.replace(record.data.idx);
+							}
+						});
+						
+						menu.add({
+							iconCls:"mi mi-trash",
+							text:Attachment.getText("admin/delete"),
+							handler:function() {
+								Attachment.file.delete();
 							}
 						});
 						
@@ -175,6 +191,30 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 				title:Attachment.getText("admin/temp/title"),
 				border:false,
 				tbar:[
+					new Ext.form.ComboBox({
+						id:"ModuleAttachmentUnlinkMonth",
+						width:150,
+						store:new Ext.data.JsonStore({
+							proxy:{
+								type:"ajax",
+								simpleSortMode:true,
+								url:ENV.getProcessUrl("attachment","@getDirectories"),
+								reader:{type:"json"}
+							},
+							remoteSort:true,
+							autoLoad:true,
+							fields:["path"]
+						}),
+						displayField:"path",
+						valueField:"path",
+						value:"temp",
+						listeners:{
+							change:function(form,value) {
+								Ext.getCmp("ModuleAttachmentTempList").getStore().getProxy().setExtraParam("path",value);
+								Ext.getCmp("ModuleAttachmentTempList").getStore().reload();
+							}
+						}
+					}),
 					Admin.searchField("ModuleAttachmentTempKeyword",250,Attachment.getText("admin/list/keyword"),function(keyword) {
 						Ext.getCmp("ModuleAttachmentTempList").getStore().clearFilter();
 						Ext.getCmp("ModuleAttachmentTempList").getStore().filter(function(record) {
@@ -188,7 +228,7 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 					"-",
 					new Ext.Button({
 						iconCls:"mi mi-trash",
-						text:"선택된 임시파일 삭제",
+						text:Attachment.getText("admin/delete_selected"),
 						handler:function() {
 							Attachment.temp.delete();
 						}
@@ -237,8 +277,8 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 					}
 				},{
 					text:Attachment.getText("admin/list/columns/path"),
-					width:350,
-					dataIndex:"path",
+					width:400,
+					dataIndex:"realpath",
 					sortable:true,
 					renderer:function(value) {
 						var temp = value.split("/");
@@ -267,7 +307,7 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 				],
 				listeners:{
 					itemdblclick:function(grid,record) {
-						document.downloadFrame.location.href = ENV.DIR + "/attachment/download/temp/" + record.data.name;
+						document.downloadFrame.location.href = ENV.getProcessUrl("attachment","@download") + "?path=" + record.data.path;
 					},
 					itemcontextmenu:function(grid,record,item,index,e) {
 						var menu = new Ext.menu.Menu();
@@ -276,19 +316,19 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 						
 						menu.add({
 							iconCls:"xi xi-download",
-							text:"다운로드",
+							text:Attachment.getText("admin/download"),
 							handler:function() {
-								document.downloadFrame.location.href = ENV.DIR + "/attachment/download/temp/" + record.data.name;
+								document.downloadFrame.location.href = ENV.getProcessUrl("attachment","@download") + "?path=" + record.data.path;
 							}
 						});
 						
 						menu.add({
 							iconCls:"mi mi-trash",
-							text:"파일삭제",
+							text:Attachment.getText("admin/delete"),
 							handler:function() {
 								Attachment.temp.delete();
 							}
-						})
+						});
 						
 						e.stopEvent();
 						menu.showAt(e.getXY());

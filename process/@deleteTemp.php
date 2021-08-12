@@ -13,8 +13,21 @@
 if (defined('__IM__') == false) exit;
 
 $files = Param('files') ? json_decode(Param('files')) : array();
-foreach ($files as $file) {
-	@unlink($this->getTempPath(true).'/'.$file);
+foreach ($files as $path) {
+	$file = explode('/',$path);
+	if (count($file) != 2) {
+		$results->success = false;
+		$results->message = $this->getErrorText('FILE_NOT_FOUND');
+		return;
+	}
+	
+	if ($file[0] != 'temp' && preg_match('/^[0-9]{6}$/',$file[0]) == false) {
+		$results->success = false;
+		$results->message = $this->getErrorText('FILE_NOT_FOUND');
+		return;
+	}
+	
+	@unlink($this->getAttachmentPath().'/'.$path);
 }
 
 $results->success = true;

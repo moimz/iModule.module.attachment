@@ -215,21 +215,46 @@ var Attachment = {
 					}
 				}
 			}).show();
+		},
+		delete:function() {
+			Ext.Msg.show({title:Admin.getText("alert/info"),msg:Attachment.getText("admin/delete_confirm"),buttons:Ext.Msg.OKCANCEL,icon:Ext.Msg.QUESTION,fn:function(button) {
+				if (button == "ok") {
+					var selected = Ext.getCmp("ModuleAttachmentList").getSelectionModel().getSelection();
+					if (selected.length == 0) {
+						Ext.Msg.show({title:Admin.getText("alert/error"),msg:Attachment.getErrorText("NOT_SELECTED"),buttons:Ext.Msg.OK,icon:Ext.Msg.ERROR});
+						return;
+					}
+		
+					var idxes = [];
+					for (var i=0, loop=selected.length;i<loop;i++) {
+						idxes[i] = selected[i].data.idx;
+					}
+					
+					Ext.Msg.wait(Admin.getText("action/working"),Admin.getText("action/wait"));
+					$.send(ENV.getProcessUrl("attachment","@deleteFile"),{idxes:idxes.join(",")},function(result) {
+						if (result.success == true) {
+							Ext.Msg.show({title:Admin.getText("alert/info"),msg:Admin.getText("action/worked"),buttons:Ext.Msg.OK,icon:Ext.Msg.INFO,fn:function() {
+								Ext.getCmp("ModuleAttachmentList").getStore().reload();
+							}});
+						}
+					});
+				}
+			}});
 		}
 	},
 	temp:{
 		delete:function() {
-			Ext.Msg.show({title:Admin.getText("alert/info"),msg:"선택된 임시파일을 삭제하시겠습니까?<br>임시파일을 이용하여 특정한 작업이 수행되고 있을 수 있으므로 가급적 생성된지 오래된 임시파일만 삭제하는 것을 권장합니다.",buttons:Ext.Msg.OKCANCEL,icon:Ext.Msg.QUESTION,fn:function(button) {
+			Ext.Msg.show({title:Admin.getText("alert/info"),msg:Attachment.getText("admin/delete_confirm"),buttons:Ext.Msg.OKCANCEL,icon:Ext.Msg.QUESTION,fn:function(button) {
 				if (button == "ok") {
 					var selected = Ext.getCmp("ModuleAttachmentTempList").getSelectionModel().getSelection();
 					if (selected.length == 0) {
-						Ext.Msg.show({title:Admin.getText("alert/error"),msg:"삭제할 임시파일을 선택하여 주십시오.",buttons:Ext.Msg.OK,icon:Ext.Msg.ERROR});
+						Ext.Msg.show({title:Admin.getText("alert/error"),msg:Attachment.getErrorText("NOT_SELECTED"),buttons:Ext.Msg.OK,icon:Ext.Msg.ERROR});
 						return;
 					}
 		
 					var files = [];
 					for (var i=0, loop=selected.length;i<loop;i++) {
-						files[i] = selected[i].data.name;
+						files[i] = selected[i].data.path;
 					}
 					
 					Ext.Msg.wait(Admin.getText("action/working"),Admin.getText("action/wait"));

@@ -612,6 +612,16 @@ class ModuleAttachment {
 
 		return $script;
 	}
+	
+	/**
+	 * 첨부파일 경로를 가져온다.
+	 *
+	 * @param boolean $isFullPath 전체경로포함여부
+	 * @return string $path
+	 */
+	function getAttachmentPath() {
+		return $this->IM->getAttachmentPath();
+	}
 
 	/**
 	 * 첨부파일폴더를 지정한다.
@@ -634,12 +644,12 @@ class ModuleAttachment {
 	 */
 	function getCurrentPath($isFullPath=false,$reg_date=null) {
 		$folder = $this->_currentPath ? $this->_currentPath : date('Ym',$reg_date == null ? time() : $reg_date);
-		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
-			mkdir($this->IM->getAttachmentPath().'/'.$folder);
-			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
+		if (is_dir($this->getAttachmentPath().'/'.$folder) == false) {
+			mkdir($this->getAttachmentPath().'/'.$folder);
+			chmod($this->getAttachmentPath().'/'.$folder,0707);
 		}
 
-		if ($isFullPath == true) $folder = $this->IM->getAttachmentPath().'/'.$folder;
+		if ($isFullPath == true) $folder = $this->getAttachmentPath().'/'.$folder;
 		return $folder;
 	}
 
@@ -651,9 +661,9 @@ class ModuleAttachment {
 	 */
 	function getTempDir($isFullPath=false) {
 		$folder = 'temp';
-		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
-			mkdir($this->IM->getAttachmentPath().'/'.$folder);
-			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
+		if (is_dir($this->getAttachmentPath().'/'.$folder) == false) {
+			mkdir($this->getAttachmentPath().'/'.$folder);
+			chmod($this->getAttachmentPath().'/'.$folder,0707);
 		}
 
 		if ($isFullPath == true) $folder = $this->IM->getAttachmentDir().'/'.$folder;
@@ -668,12 +678,12 @@ class ModuleAttachment {
 	 */
 	function getTempPath($isFullPath=false) {
 		$folder = 'temp';
-		if (is_dir($this->IM->getAttachmentPath().'/'.$folder) == false) {
-			mkdir($this->IM->getAttachmentPath().'/'.$folder);
-			chmod($this->IM->getAttachmentPath().'/'.$folder,0707);
+		if (is_dir($this->getAttachmentPath().'/'.$folder) == false) {
+			mkdir($this->getAttachmentPath().'/'.$folder);
+			chmod($this->getAttachmentPath().'/'.$folder,0707);
 		}
 
-		if ($isFullPath == true) $folder = $this->IM->getAttachmentPath().'/'.$folder;
+		if ($isFullPath == true) $folder = $this->getAttachmentPath().'/'.$folder;
 		return $folder;
 	}
 
@@ -819,7 +829,7 @@ class ModuleAttachment {
 			if ($view == 'view') return $url.'/attachment/view/'.$file->idx.'/'.urlencode($file->name);
 			if ($view == 'thumbnail') {
 				if ($file->type == 'image') return $url.'/attachment/thumbnail/'.$file->idx.'/'.urlencode($file->name);
-				elseif (file_exists($this->IM->getAttachmentPath().'/'.$file->path.'.thumb') == true) return $url.'/attachment/thumbnail/'.$file->idx.'/'.urlencode($file->name).'.jpg';
+				elseif (file_exists($this->getAttachmentPath().'/'.$file->path.'.thumb') == true) return $url.'/attachment/thumbnail/'.$file->idx.'/'.urlencode($file->name).'.jpg';
 				else return null;
 			}
 
@@ -1083,7 +1093,7 @@ class ModuleAttachment {
 		$fileInfo->width = $file->width;
 		$fileInfo->height = $file->height;
 		$fileInfo->hit = $file->download;
-		$fileInfo->path = $is_realpath == true ? $this->IM->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx,'view',$is_fullurl);
+		$fileInfo->path = $is_realpath == true ? $this->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx,'view',$is_fullurl);
 		$fileInfo->thumbnail = $this->getAttachmentUrl($idx,'thumbnail',$is_fullurl);
 		$fileInfo->download = $this->getAttachmentUrl($idx,'download',$is_fullurl);
 		$fileInfo->reg_date = $file->reg_date;
@@ -1135,9 +1145,9 @@ class ModuleAttachment {
 
 			if ($file->origin == 0) {
 				if ($file->duplicate == 0) {
-					@unlink($this->IM->getAttachmentPath().'/'.$file->path);
-					@unlink($this->IM->getAttachmentPath().'/'.$file->path.'.view');
-					@unlink($this->IM->getAttachmentPath().'/'.$file->path.'.thumb');
+					@unlink($this->getAttachmentPath().'/'.$file->path);
+					@unlink($this->getAttachmentPath().'/'.$file->path.'.view');
+					@unlink($this->getAttachmentPath().'/'.$file->path.'.thumb');
 				} else {
 					$duplicates = $this->db()->select($this->table->attachment)->where('origin',$file->idx)->orderBy('idx','asc')->get();
 					for ($i=0, $loop=count($duplicates);$i<$loop;$i++) {
@@ -1169,7 +1179,7 @@ class ModuleAttachment {
 		if (!$idx) return false;
 
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
-		$filePath = $this->IM->getAttachmentPath().'/'.$file->path;
+		$filePath = $this->getAttachmentPath().'/'.$file->path;
 
 		$insert = array();
 		$insert['mime'] = $this->getFileMime($filePath);
@@ -1184,7 +1194,7 @@ class ModuleAttachment {
 			$insert['height'] = $check[1];
 		}
 
-		rename($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
+		rename($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 
 		return $this->getFileInfo($idx);
@@ -1225,9 +1235,9 @@ class ModuleAttachment {
 		$insert['status'] = $status;
 
 		if ($isDelete == true) {
-			rename($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
+			rename($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		} else {
-			copy($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
+			copy($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		}
 
 		$idx = $this->db()->insert($this->table->attachment,$insert)->execute();
@@ -1271,17 +1281,17 @@ class ModuleAttachment {
 		$insert['wysiwyg'] = 'FALSE';
 
 		if ($isDelete == true) {
-			rename($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
+			rename($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		} else {
-			copy($filePath,$this->IM->getAttachmentPath().'/'.$insert['path']);
+			copy($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		}
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 
 		if ($oFile->origin == 0) {
 			if ($oFile->duplicate == 0) {
-				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path);
-				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.view');
-				@unlink($this->IM->getAttachmentPath().'/'.$oFile->path.'.thumb');
+				@unlink($this->getAttachmentPath().'/'.$oFile->path);
+				@unlink($this->getAttachmentPath().'/'.$oFile->path.'.view');
+				@unlink($this->getAttachmentPath().'/'.$oFile->path.'.thumb');
 			} else {
 				$duplicates = $this->db()->select($this->table->attachment)->where('origin',$oFile->idx)->orderBy('idx','asc')->get();
 				for ($i=0, $loop=count($duplicates);$i<$loop;$i++) {
@@ -1363,7 +1373,7 @@ class ModuleAttachment {
 			$this->printError('FILE_NOT_FOUND');
 			exit;
 		} else {
-			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->IM->getAttachmentPath().'/'.$file->path;
+			$filePath = substr($file->path,0,1) == '/' ? $file->path : $this->getAttachmentPath().'/'.$file->path;
 
 			if (is_file($filePath) == true) {
 				if ($isHit == true) $this->db()->update($this->table->attachment,array('download'=>$this->db()->inc()))->where('idx',$idx)->execute();
