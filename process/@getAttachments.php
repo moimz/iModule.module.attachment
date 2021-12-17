@@ -14,11 +14,13 @@ if (defined('__IM__') == false) exit;
 
 $start = Request('start');
 $limit = Request('limit');
+$status = Request('status');
 $keyword = Request('keyword');
 $sort = Request('sort') ? Request('sort') : 'reg_date';
 $dir = Request('dir') ? Request('dir') : 'desc';
 
 $lists = $this->db()->select($this->table->attachment);
+if ($status) $lists->where('status',$status);
 if ($keyword) $lists->where('(name like ? or path like ?)',array('%'.$keyword.'%','%'.$keyword.'%'));
 $total = $lists->copy()->count();
 $lists = $lists->orderBy($sort,$dir)->limit($start,$limit)->get();

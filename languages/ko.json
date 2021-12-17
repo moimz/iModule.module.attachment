@@ -15,6 +15,7 @@
 		}
 	},
 	"status":{
+		"ALL":"전체",
 		"DRAFT":"임시",
 		"PUBLISHED":"정상"
 	},

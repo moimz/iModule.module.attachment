@@ -36,6 +36,39 @@ Ext.onReady(function () { Ext.getCmp("iModuleAdminPanel").add(
 						handler:function() {
 							Attachment.file.delete();
 						}
+					}),
+					"->",
+					new Ext.button.Segmented({
+						allowMultiple:false,
+						items:[
+							new Ext.Button({
+								text:Attachment.getText("status/ALL"),
+								status:"",
+								pressed:true,
+								iconCls:"fa fa-check-square-o"
+							}),
+							new Ext.Button({
+								text:Attachment.getText("status/PUBLISHED"),
+								status:"PUBLISHED",
+								iconCls:"fa fa-square-o"
+							}),
+							new Ext.Button({
+								text:Attachment.getText("status/DRAFT"),
+								status:"DRAFT",
+								iconCls:"fa fa-square-o"
+							})
+						],
+						listeners:{
+							toggle:function(segmented,button,pressed) {
+								for (var i=0, loop=segmented.items.items.length;i<loop;i++) {
+									segmented.items.items[i].setIconCls("fa fa-square-o");
+								}
+								
+								button.setIconCls("fa fa-check-square-o");
+								Ext.getCmp("ModuleAttachmentList").getStore().getProxy().setExtraParam("status",button.status);
+								Ext.getCmp("ModuleAttachmentList").getStore().loadPage(1);
+							}
+						}
 					})
 				],
 				store:new Ext.data.JsonStore({
