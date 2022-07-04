@@ -1094,6 +1094,7 @@ class ModuleAttachment {
 		$fileInfo->height = $file->height;
 		$fileInfo->hit = $file->download;
 		$fileInfo->path = $is_realpath == true ? $this->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx,'view',$is_fullurl);
+		$fileInfo->original = $is_realpath == true ? $this->getAttachmentPath().'/'.$file->path : $this->getAttachmentUrl($idx,'original',$is_fullurl);
 		$fileInfo->thumbnail = $this->getAttachmentUrl($idx,'thumbnail',$is_fullurl);
 		$fileInfo->download = $this->getAttachmentUrl($idx,'download',$is_fullurl);
 		$fileInfo->reg_date = $file->reg_date;
@@ -1175,7 +1176,7 @@ class ModuleAttachment {
 	 * @param int $idx 업로드를 완료할 파일고유번호
 	 * @return object $fileInfo 업로드가 완료된 파일정보
 	 */
-	function fileUpload($idx) {
+	function fileUpload($idx,$is_fullurl=false) {
 		if (!$idx) return false;
 
 		$file = $this->db()->select($this->table->attachment)->where('idx',$idx)->getOne();
@@ -1197,7 +1198,7 @@ class ModuleAttachment {
 		rename($filePath,$this->getAttachmentPath().'/'.$insert['path']);
 		$this->db()->update($this->table->attachment,$insert)->where('idx',$idx)->execute();
 
-		return $this->getFileInfo($idx);
+		return $this->getFileInfo($idx,false,$is_fullurl);
 	}
 
 	/**
